@@ -651,3 +651,13 @@ delete_pgsql_user() {
 	query="DROP ROLE $old_dbuser"
 	psql_query "$query" > /dev/null
 }
+
+# Get database name / username without prefix
+delete_database_prefix() {
+	user=$1
+	db=$2
+	user_len=${#user}
+	user_len=$((user_len+1))
+	echo ${db:user_len}
+}
+

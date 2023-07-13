@@ -1,0 +1,217 @@
+#!/bin/bash
+# info: get database credentials and other basic data of domain
+# options: DOMAIN [SUBDIR]
+#
+# example: v-get-database-credentials-of-domain example.com
+#
+# Gets database credentials and other basic data of domain.
+
+#----------------------------------------------------------#
+#                Variables & Functions                     #
+#----------------------------------------------------------#
+
+whoami=$(whoami)
+if [ "$whoami" != "root" ]; then
+	echo "You must be root to execute this script"
+	exit 1
+fi
+
+# Argument definition
+DOMAIN=$1
+
+SUBDIR=''
+if [ $# -gt 1 ]; then
+	SUBDIR=$2
+fi
+
+# Importing system environment
+source /etc/profile
+
+# Includes
+# shellcheck source=/etc/hestiacp/hestia.conf
+source /etc/hestiacp/hestia.conf
+# shellcheck source=/usr/local/hestia/func/main.sh
+source $HESTIA/func/main.sh
+# shellcheck source=/usr/local/hestia/func/db.sh
+source $HESTIA/func/db.sh
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+
+check_args '1' "$#" 'DOMAIN [SUBDIR]'
+is_domain_format_valid "$DOMAIN"
+
+USER=$($HESTIA/bin/v-search-domain-owner "$DOMAIN")
+if [ -z "$USER" ]; then
+	echo "Error: domain $DOMAIN does not exist"
+	exit 2
+fi
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+PUBLIC_HTML='public_html';
+CHECK_PUBLIC_SHTML=$($HESTIA/bin/v-list-web-domain "$USER" "$DOMAIN" | grep 'SSL:' | grep -c 'single')
+
+if [ $CHECK_PUBLIC_SHTML -eq 1 ]; then
+	PUBLIC_HTML='public_shtml';
+fi
+SITE_DIR="/home/$USER/web/$DOMAIN/$PUBLIC_HTML"
+
+if [ ! -z "$SUBDIR" ]; then
+	SITE_DIR="${SITE_DIR}/${SUBDIR}"
+fi
+
+SITE_TYPE=''
+
+if [ -f "$SITE_DIR/wp-config.php" ]; then
+	SITE_TYPE='wordpress'
+	CONFIG_FILE="wp-config.php"
+	CONFIG_FILE_FULL_PATH="$SITE_DIR/$CONFIG_FILE"
+fi
+
+if [ -f "$SITE_DIR/configuration.php" ]; then
+	SITE_TYPE='joomla'
+	CONFIG_FILE="configuration.php"
+	CONFIG_FILE_FULL_PATH="$SITE_DIR/$CONFIG_FILE"
+fi
+
+if [ -f "$SITE_DIR/system/engine/model.php" ]; then
+	check_grep=$(grep -c 'OpenCart' $SITE_DIR/system/engine/model.php)
+	if [ "$check_grep" -gt 0 ]; then
+		SITE_TYPE='opencart'
+		CONFIG_FILE="$PUBLIC_HTML/config.php"
+		SUBDIR='..'
+		SITE_DIR="${SITE_DIR}/.."
+		CONFIG_FILE_FULL_PATH="$SITE_DIR/$CONFIG_FILE"
+	fi
+fi
+
+# Fallback to a static site if SITE_TYPE is not set
+if [ -z "$SITE_TYPE" ]; then
+	SITE_TYPE='static'
+fi
+
+if [ "$SITE_TYPE" = "wordpress" ]; then
+	CONFIG_FILE_FULL_PATH_BACKUP="${CONFIG_FILE_FULL_PATH}_backup"
+	cp $CONFIG_FILE_FULL_PATH $CONFIG_FILE_FULL_PATH_BACKUP
+	sed -i "s|//.*$||g" $CONFIG_FILE_FULL_PATH_BACKUP
+	sed -i "s|\"|'|g" $CONFIG_FILE_FULL_PATH_BACKUP
+	sed -i "s|('|( '|g" $CONFIG_FILE_FULL_PATH_BACKUP
+	sed -i "s|');|' );|g" $CONFIG_FILE_FULL_PATH_BACKUP
+	DB_NAME=$(grep 'DB_NAME' $CONFIG_FILE_FULL_PATH_BACKUP | awk '{print $3}' | sed -e "s/^'//" -e "s/'$//")
+	DB_USERNAME=$(grep 'DB_USER' $CONFIG_FILE_FULL_PATH_BACKUP | awk '{print $3}' | sed -e "s/^'//" -e "s/'$//")
+	DB_PASSWORD=$(grep 'DB_PASSWORD' $CONFIG_FILE_FULL_PATH_BACKUP | awk '{print $3}' | sed -e "s/^'//" -e "s/'$//")
+	DB_HOSTNAME=$(grep 'DB_HOST' $CONFIG_FILE_FULL_PATH_BACKUP | awk '{print $3}' | sed -e "s/^'//" -e "s/'$//")
+	rm $CONFIG_FILE_FULL_PATH_BACKUP
+fi
+
+if [ "$SITE_TYPE" = "joomla" ]; then
+	CONFIG_FILE_FULL_PATH_BACKUP="${CONFIG_FILE_FULL_PATH}_backup"
+	cp $CONFIG_FILE_FULL_PATH $CONFIG_FILE_FULL_PATH_BACKUP
+	sed -i "s|//.*$||g" $CONFIG_FILE_FULL_PATH_BACKUP
+	sed -i "s|='|= '|g" $CONFIG_FILE_FULL_PATH_BACKUP
+	sed -i "s|= '| = '|g" $CONFIG_FILE_FULL_PATH_BACKUP
+	sed -i "s|  =| =|g" $CONFIG_FILE_FULL_PATH_BACKUP
+	sed -i "s|';$|'|g" $CONFIG_FILE_FULL_PATH_BACKUP
+	DB_NAME=$(grep 'public $db ' $CONFIG_FILE_FULL_PATH_BACKUP | awk '{print $4}' | sed -e "s/^'//" -e "s/'$//")
+	DB_USERNAME=$(grep 'public $user ' $CONFIG_FILE_FULL_PATH_BACKUP | awk '{print $4}' | sed -e "s/^'//" -e "s/'$//")
+	DB_PASSWORD=$(grep 'public $password ' $CONFIG_FILE_FULL_PATH_BACKUP | awk '{print $4}' | sed -e "s/^'//" -e "s/'$//")
+	DB_HOSTNAME=$(grep 'public $host ' $CONFIG_FILE_FULL_PATH_BACKUP | awk '{print $4}' | sed -e "s/^'//" -e "s/'$//")
+	rm $CONFIG_FILE_FULL_PATH_BACKUP
+fi
+
+if [ "$SITE_TYPE" = "opencart" ]; then
+	CONFIG_FILE_FULL_PATH_BACKUP="${CONFIG_FILE_FULL_PATH}_backup"
+	cp $CONFIG_FILE_FULL_PATH $CONFIG_FILE_FULL_PATH_BACKUP
+	sed -i "s|//.*$||g" $CONFIG_FILE_FULL_PATH_BACKUP
+	sed -i "s|('|( '|g" $CONFIG_FILE_FULL_PATH_BACKUP
+	sed -i "s|');|' );|g" $CONFIG_FILE_FULL_PATH_BACKUP
+	DB_NAME=$(grep 'DB_DATABASE' $CONFIG_FILE_FULL_PATH_BACKUP | awk '{print $3}' | sed -e "s/^'//" -e "s/'$//")
+	DB_USERNAME=$(grep 'DB_USERNAME' $CONFIG_FILE_FULL_PATH_BACKUP | awk '{print $3}' | sed -e "s/^'//" -e "s/'$//")
+	DB_PASSWORD=$(grep 'DB_PASSWORD' $CONFIG_FILE_FULL_PATH_BACKUP | awk '{print $3}' | sed -e "s/^'//" -e "s/'$//")
+	DB_HOSTNAME=$(grep 'DB_HOST' $CONFIG_FILE_FULL_PATH_BACKUP | awk '{print $3}' | sed -e "s/^'//" -e "s/'$//")
+	rm $CONFIG_FILE_FULL_PATH_BACKUP
+fi
+
+SITE_TEMPLATE=$($HESTIA/bin/v-list-web-domain "$USER" "$DOMAIN" | grep 'TEMPLATE:' | awk '{print $2}')
+SITE_PROXY_TEMPLATE=$($HESTIA/bin/v-list-web-domain "$USER" "$DOMAIN" | grep 'PROXY:' | awk '{print $2}')
+SITE_PROXY_EXTENSION=$($HESTIA/bin/v-list-web-domain "$USER" "$DOMAIN" | grep 'PROXY EXT:' | cut -d ' ' -f8- | sed "s# #,#g")
+
+SITE_HAS_SSL=''
+if [ -f "/home/$USER/conf/web/$DOMAIN/ssl/$DOMAIN.ca" ]; then
+	SITE_HAS_SSL='yes'
+fi
+
+if [ ! -z "$DB_NAME" ]; then
+	DB_NAME_WITHOUT_USER_PREFIX=$(delete_database_prefix "$USER" "$DB_NAME")
+fi
+
+if [ ! -z "$DB_USERNAME" ]; then
+	DB_USERNAME_WITHOUT_USER_PREFIX=$(delete_database_prefix "$USER" "$DB_USERNAME")
+fi
+
+USER=$(escape_shell_quote $USER)
+echo "SITE_USER=$USER"
+
+SITE_DIR=$(escape_shell_quote $SITE_DIR)
+echo "SITE_DIR=$SITE_DIR"
+
+SUBDIR=$(escape_shell_quote $SUBDIR)
+echo "SITE_SUBDIR=$SUBDIR"
+
+SITE_TYPE=$(escape_shell_quote $SITE_TYPE)
+echo "SITE_TYPE=$SITE_TYPE"
+
+SITE_HAS_SSL=$(escape_shell_quote $SITE_HAS_SSL)
+echo "SITE_HAS_SSL=$SITE_HAS_SSL"
+
+SITE_TEMPLATE=$(escape_shell_quote $SITE_TEMPLATE)
+echo "SITE_TEMPLATE=$SITE_TEMPLATE"
+
+SITE_PROXY_TEMPLATE=$(escape_shell_quote $SITE_PROXY_TEMPLATE)
+echo "SITE_PROXY_TEMPLATE=$SITE_PROXY_TEMPLATE"
+
+SITE_PROXY_EXTENSION=$(escape_shell_quote $SITE_PROXY_EXTENSION)
+echo "SITE_PROXY_EXTENSION=$SITE_PROXY_EXTENSION"
+
+CONFIG_FILE=$(escape_shell_quote $CONFIG_FILE)
+echo "CONFIG_FILE=$CONFIG_FILE"
+
+CONFIG_FILE_FULL_PATH=$(escape_shell_quote $CONFIG_FILE_FULL_PATH)
+echo "CONFIG_FILE_FULL_PATH=$CONFIG_FILE_FULL_PATH"
+
+DB_HOSTNAME=$(escape_shell_quote $DB_HOSTNAME)
+echo "DB_HOSTNAME=$DB_HOSTNAME"
+
+DB_NAME=$(escape_shell_quote $DB_NAME)
+echo "DB_NAME=$DB_NAME"
+
+DB_USERNAME=$(escape_shell_quote $DB_USERNAME)
+echo "DB_USERNAME=$DB_USERNAME"
+
+DB_PASSWORD=$(escape_shell_quote $DB_PASSWORD)
+echo "DB_PASSWORD=$DB_PASSWORD"
+
+DB_NAME_WITHOUT_USER_PREFIX=$(escape_shell_quote $DB_NAME_WITHOUT_USER_PREFIX)
+echo "DB_NAME_WITHOUT_USER_PREFIX=$DB_NAME_WITHOUT_USER_PREFIX"
+
+DB_USERNAME_WITHOUT_USER_PREFIX=$(escape_shell_quote $DB_USERNAME_WITHOUT_USER_PREFIX)
+echo "DB_USERNAME_WITHOUT_USER_PREFIX=$DB_USERNAME_WITHOUT_USER_PREFIX"
+
+if [ "$SITE_TYPE" = "'opencart'" ]; then
+	echo "SEARCH_FOR_CONFIGS_DB_NAME=1"
+	echo "SEARCH_FOR_CONFIGS_DB_USERNAME=1"
+fi
+
+#----------------------------------------------------------#
+#                       Hestia                             #
+#----------------------------------------------------------#
+
+# Logging
+log_event "$OK" "$ARGUMENTS"
+
+exit
+

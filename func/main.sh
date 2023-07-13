@@ -1802,3 +1802,16 @@ delete_chroot_jail() {
 	rm -r /srv/jail/$user/ > /dev/null 2>&1
 	rmdir /srv/jail/$user > /dev/null 2>&1
 }
+
+# Replace values in php config files, wp-config.php for instance, etc
+replace_php_config_value() {
+	if [ ! -z "$4" ]; then
+		if [ "$4" = "yes" ] || [ "$4" = "true" ] || [ "$4" = "1" ] || [ $4 -eq 1 ]; then
+			echo "=== Replacing $1 to $2 in $3"
+		fi
+	fi
+	sed -i "s|'$1'|'$2'|g" $3
+	sed -i "s|\"$1\"|\"$2\"|g" $3
+	sed -i "s|=$1$|=$2|g" $3
+	sed -i "s|= $1$|= $2|g" $3
+}

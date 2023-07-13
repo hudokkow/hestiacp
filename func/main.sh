@@ -1802,3 +1802,40 @@ delete_chroot_jail() {
 	rm -r /srv/jail/$user/ > /dev/null 2>&1
 	rmdir /srv/jail/$user > /dev/null 2>&1
 }
+
+# Escape shell quoted strings
+escape_shell_quote() {
+	local escape_shell_quoted=${1//\'/\'\\\'\'};
+	printf "'%s'" "$escape_shell_quoted"
+}
+
+# Handle --parameters=val
+handle_parameter() {
+	origparam=$1
+	searchstring="="
+	paramminuses=${origparam:0:2}
+	if [ "$paramminuses" = "--" ]; then
+		var_without_minuses=${origparam:2}
+		var=${var_without_minuses%%=*}
+		val=${origparam#*$searchstring}
+		# echo "$var = $val"
+		printf -v "$var" '%s' "$val"
+	fi
+}
+numargs=$#
+for ((i=1 ; i <= numargs ; i++))
+do
+	handle_parameter ${@:$i:1}
+done
+
+replace_php_config_value() {
+	if [ ! -z "$4" ]; then
+		if [ "$4" = "yes" ] || [ "$4" = "true" ] || [ "$4" = "1" ] || [ $4 -eq 1 ]; then
+			echo "=== Replacing $1 to $2 in $3"
+		fi
+	fi
+	sed -i "s|'$1'|'$2'|g" $3
+	sed -i "s|\"$1\"|\"$2\"|g" $3
+	sed -i "s|=$1$|=$2|g" $3
+	sed -i "s|= $1$|= $2|g" $3
+}

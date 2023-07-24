@@ -1,0 +1,599 @@
+#!/bin/bash
+# info: clone website
+# options: SOURCE_DOMAIN TARGET_DOMAIN [TARGET_USER]
+#
+# example: v-clone-website example.com example.org
+# example: v-clone-website example.com example.org joker
+#
+# Migration tool that will copy the whole site from one (sub)domain to another (sub)domain (on the same server), changing URLs in the database, taking into account serialized arrays.
+# Useful for making a website staging copy in one command-line.
+# It automatically detects WordPress, reading the DB user, DB name, DB pass, and cloning to a new database, with the corresponding wp-config.php file update during the process.
+
+if [ $# -lt 2 ]; then
+	echo "USAGE: v-clone-website SOURCE_DOMAIN TARGET_DOMAIN"
+	exit 1
+fi
+
+#----------------------------------------------------------#
+#                Variables & Functions                     #
+#----------------------------------------------------------#
+
+# Debug
+# PS4=':$BASH_SOURCE:$LINENO+'; set -x
+# TODO: hudok cleanup or disable after testing
+DEBUG_BLOCK=1
+
+# Argument definition
+SOURCE_DOMAIN=$1
+TARGET_DOMAIN=$2
+TARGET_USER=$3
+
+# Importing system environment
+source /etc/profile
+
+# Includes
+# shellcheck source=/etc/hestiacp/hestia.conf
+source /etc/hestiacp/hestia.conf
+# shellcheck source=/usr/local/hestia/func/main.sh
+source $HESTIA/func/main.sh
+# shellcheck source=/usr/local/hestia/func/db.sh
+source $HESTIA/func/db.sh
+# load config file
+source_conf "$HESTIA/conf/hestia.conf"
+
+# Perform verification if read-only mode is enabled
+check_hestia_demo_mode
+
+# TODO: hudok cleanup
+# Replace values in php config files, wp-config.php for instance, etc
+replace_php_config_value() {
+	if [ -n "$4" ]; then
+		if [ "$4" = "yes" ] || [ "$4" = "true" ] || [ "$4" = "1" ] || [ $4 -eq 1 ]; then
+			echo "=== Replacing $1 to $2 in $3"
+		fi
+	fi
+	sed -i "s|'$1'|'$2'|g" $3
+	sed -i "s|\"$1\"|\"$2\"|g" $3
+	sed -i "s|=$1$|=$2|g" $3
+	sed -i "s|= $1$|= $2|g" $3
+}
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+
+is_domain_format_valid "$SOURCE_DOMAIN"
+is_domain_format_valid "$TARGET_DOMAIN"
+
+# Bail early if $SOURCE_DOMAIN doesn't exist
+source_user=$($HESTIA/bin/v-search-domain-owner "$SOURCE_DOMAIN")
+if [ -z "$source_user" ]; then
+	echo "Error: domain $SOURCE_DOMAIN does not exist"
+	exit 2
+fi
+
+# Check if $TARGET_DOMAIN exists
+target_user=$($HESTIA/bin/v-search-domain-owner "$TARGET_DOMAIN")
+if [ -n "$target_user" ]; then
+	TARGET_DOMAIN_EXISTS='yes'
+	CREATE_TARGET_USER='no'
+	CREATE_TARGET_DOMAIN='no'
+else
+	TARGET_DOMAIN_EXISTS='no'
+fi
+
+#----------------------------------------------------------#
+#                 Source Configuration                     #
+#----------------------------------------------------------#
+
+source_info=$($HESTIA/bin/v-get-site-info "$SOURCE_DOMAIN")
+
+eval "$source_info"
+
+SOURCE_USER="$SITE_USER"
+SOURCE_DIR="$SITE_DIR"
+SOURCE_SUBDIR="$SITE_SUBDIR"
+SOURCE_TYPE="$SITE_TYPE"
+SOURCE_HAS_SSL="$SITE_HAS_SSL"
+SOURCE_HAS_SSL_HSTS="$SITE_HAS_SSL_HSTS"
+SOURCE_HAS_SSL_FORCE="$SITE_HAS_SSL_FORCE"
+SOURCE_IP="$SITE_IP"
+SOURCE_BACKEND="$SITE_BACKEND"
+SOURCE_TEMPLATE="$SITE_TEMPLATE"
+SOURCE_PROXY_TEMPLATE="$SITE_PROXY_TEMPLATE"
+SOURCE_PROXY_EXTENSION="$SITE_PROXY_EXTENSION"
+SOURCE_FPM_VERSION="$FPM_VERSION"
+SOURCE_CONFIG_FILE="$CONFIG_FILE"
+SOURCE_CONFIG_FILE_FULL_PATH="$CONFIG_FILE_FULL_PATH"
+SOURCE_DB_TYPE="$DB_TYPE"
+SOURCE_DB_EXISTS="$DB_EXISTS"
+SOURCE_DB_CHARSET="$DB_CHARSET"
+SOURCE_DB_HOST="$DB_HOST"
+SOURCE_DB_NAME="$DB_NAME"
+SOURCE_DB_USER="$DB_USER"
+SOURCE_DB_PASS="$DB_PASS"
+
+# TODO: hudok cleanup and test Opencart
+# Apparently Opencart exclusive
+if [ "$SOURCE_TYPE" = "opencart" ]; then
+	SEARCH_FOR_CONFIGS_DB_NAME=1
+	SEARCH_FOR_CONFIGS_DB_USER=1
+fi
+
+# TODO: hudok cleanup or disable after testing
+if [ $DEBUG_BLOCK -eq 1 ]; then
+	echo "==============================================================================="
+	echo "SOURCE CONFIG:"
+	echo "==============================================================================="
+	echo "SOURCE_DOMAIN                 = $SOURCE_DOMAIN"
+	echo "SOURCE_USER                   = $SOURCE_USER"
+	echo "SOURCE_DIR                    = $SOURCE_DIR"
+	echo "SOURCE_SUBDIR                 = $SOURCE_SUBDIR"
+	echo "SOURCE_TYPE                   = $SOURCE_TYPE"
+	echo "SOURCE_HAS_SSL                = $SOURCE_HAS_SSL"
+	echo "SOURCE_HAS_SSL_HSTS           = $SOURCE_HAS_SSL_HSTS"
+	echo "SOURCE_HAS_SSL_FORCE          = $SOURCE_HAS_SSL_FORCE"
+	echo "SOURCE_IP                     = $SOURCE_IP"
+	echo "SOURCE_BACKEND                = $SOURCE_BACKEND"
+	echo "SOURCE_TEMPLATE               = $SOURCE_TEMPLATE"
+	echo "SOURCE_PROXY_TEMPLATE         = $SOURCE_PROXY_TEMPLATE"
+	echo "SOURCE_PROXY_EXTENSION        = $SOURCE_PROXY_EXTENSION"
+	echo "SOURCE_FPM_VERSION            = $SOURCE_FPM_VERSION"
+	echo "SOURCE_CONFIG_FILE            = $SOURCE_CONFIG_FILE"
+	echo "SOURCE_CONFIG_FILE_FULL_PATH  = $SOURCE_CONFIG_FILE_FULL_PATH"
+	echo "SOURCE_DB_EXISTS              = $SOURCE_DB_EXISTS "
+	echo "SOURCE_DB_TYPE                = $SOURCE_DB_TYPE "
+	echo "SOURCE_DB_CHARSET             = $SOURCE_DB_CHARSET"
+	echo "SOURCE_DB_HOST                = $SOURCE_DB_HOST"
+	echo "SOURCE_DB_NAME                = $SOURCE_DB_NAME"
+	echo "SOURCE_DB_USER                = $SOURCE_DB_USER"
+	echo "SOURCE_DB_PASS                = $SOURCE_DB_PASS"
+	echo ""
+fi
+
+#----------------------------------------------------------#
+#                 Target Configuration                     #
+#----------------------------------------------------------#
+
+if [ "$TARGET_DOMAIN_EXISTS" = "yes" ]; then
+	if [ -z "$SOURCE_SUBDIR" ]; then
+		target_info=$($HESTIA/bin/v-get-site-info "$TARGET_DOMAIN")
+	else
+		target_info=$($HESTIA/bin/v-get-site-info "$TARGET_DOMAIN" "$SOURCE_SUBDIR")
+	fi
+
+	eval "$target_info"
+
+	TARGET_USER="$SITE_USER"
+	TARGET_DIR="$SITE_DIR"
+	TARGET_SUBDIR="$SITE_SUBDIR"
+	TARGET_TYPE="$SITE_TYPE"
+	TARGET_HAS_SSL="$SITE_HAS_SSL"
+	TARGET_HAS_SSL_HSTS="$SITE_HAS_SSL_HSTS"
+	TARGET_HAS_SSL_FORCE="$SITE_HAS_SSL_FORCE"
+	TARGET_IP="$SITE_IP"
+	TARGET_BACKEND="$SITE_BACKEND"
+	TARGET_TEMPLATE="$SITE_TEMPLATE"
+	TARGET_PROXY_TEMPLATE="$SITE_PROXY_TEMPLATE"
+	TARGET_PROXY_EXTENSION="$SITE_PROXY_EXTENSION"
+	TARGET_FPM_VERSION="$FPM_VERSION"
+	TARGET_CONFIG_FILE="$CONFIG_FILE"
+	TARGET_CONFIG_FILE_FULL_PATH="$CONFIG_FILE_FULL_PATH"
+	TARGET_DB_TYPE="$DB_TYPE"
+	TARGET_DB_EXISTS="$DB_EXISTS"
+	TARGET_DB_CHARSET="$DB_CHARSET"
+	TARGET_DB_HOST="$DB_HOST"
+	TARGET_DB_NAME="$DB_NAME"
+	TARGET_DB_USER="$DB_USER"
+	TARGET_DB_PASS="$DB_PASS"
+	TARGET_DB_NAME_WITHOUT_PREFIX="$DB_NAME_WITHOUT_PREFIX"
+	TARGET_DB_USER_WITHOUT_PREFIX="$DB_USER_WITHOUT_PREFIX"
+
+	if [ "$TARGET_HAS_SSL" = "yes" ]; then
+		TARGET_INSTALL_SSL='no'
+	else
+		# respect $SOURCE_DOMAIN SSL config
+		TARGET_INSTALL_SSL="$TARGET_HAS_SSL"
+	fi
+
+	if [ "$TARGET_HAS_SSL_HSTS" = "yes" ]; then
+		TARGET_INSTALL_SSL_HSTS='no'
+	else
+		# respect $SOURCE_DOMAIN SSL HSTS config
+		TARGET_INSTALL_SSL_HSTS="$TARGET_HAS_SSL_HSTS"
+	fi
+
+	if [ "$TARGET_HAS_SSL_FORCE" = "yes" ]; then
+		TARGET_INSTALL_SSL_FORCE='no'
+	else
+		# respect $SOURCE_DOMAIN SSL FORCE config
+		TARGET_INSTALL_SSL_FORCE="$TARGET_HAS_SSL_FORCE"
+	fi
+
+	if [ "$TARGET_DB_EXISTS" = "yes" ]; then
+		CREATE_TARGET_DATABASE='no'
+	fi
+
+	if [ $DEBUG_BLOCK -eq 1 ]; then
+		echo "==============================================================================="
+		echo "TARGET CONFIG (target domain exists):"
+		echo "==============================================================================="
+		echo "TARGET_DOMAIN                 = $TARGET_DOMAIN"
+		echo "TARGET_USER                   = $TARGET_USER"
+		echo "TARGET_DIR                    = $TARGET_DIR"
+		echo "TARGET_SUBDIR                 = $TARGET_SUBDIR"
+		echo "TARGET_TYPE                   = $TARGET_TYPE"
+		echo "TARGET_HAS_SSL                = $TARGET_HAS_SSL"
+		echo "TARGET_HAS_SSL_HSTS           = $TARGET_HAS_SSL_HSTS"
+		echo "TARGET_HAS_SSL_FORCE          = $TARGET_HAS_SSL_FORCE"
+		echo "TARGET_IP                     = $TARGET_IP"
+		echo "TARGET_BACKEND                = $TARGET_BACKEND"
+		echo "TARGET_TEMPLATE               = $TARGET_TEMPLATE"
+		echo "TARGET_PROXY_TEMPLATE         = $TARGET_PROXY_TEMPLATE"
+		echo "TARGET_PROXY_EXTENSION        = $TARGET_PROXY_EXTENSION"
+		echo "TARGET_FPM_VERSION            = $TARGET_FPM_VERSION"
+		echo "TARGET_CONFIG_FILE            = $TARGET_CONFIG_FILE"
+		echo "TARGET_CONFIG_FILE_FULL_PATH  = $TARGET_CONFIG_FILE_FULL_PATH"
+		echo "TARGET_DB_EXISTS              = $TARGET_DB_EXISTS"
+		echo "TARGET_DB_TYPE                = $TARGET_DB_TYPE"
+		echo "TARGET_DB_CHARSET             = $TARGET_DB_CHARSET"
+		echo "TARGET_DB_HOST                = $TARGET_DB_HOST"
+		echo "TARGET_DB_NAME                = $TARGET_DB_NAME"
+		echo "TARGET_DB_USER                = $TARGET_DB_USER"
+		echo "TARGET_DB_PASS                = $TARGET_DB_PASS"
+		echo "TARGET_DB_NAME_WITHOUT_PREFIX = $TARGET_DB_NAME_WITHOUT_PREFIX"
+		echo "TARGET_DB_USER_WITHOUT_PREFIX = $TARGET_DB_USER_WITHOUT_PREFIX"
+		echo "SEARCH_FOR_CONFIGS_DB_NAME    = $SEARCH_FOR_CONFIGS_DB_NAME"
+		echo "SEARCH_FOR_CONFIGS_DB_USER    = $SEARCH_FOR_CONFIGS_DB_USER"
+		echo ""
+		echo "==============================================================================="
+		echo "TARGET CONTROL CHECKS (target domain exists):"
+		echo "==============================================================================="
+		echo "TARGET_DOMAIN_EXISTS          = $TARGET_DOMAIN_EXISTS"
+		echo "TARGET_INSTALL_SSL            = $TARGET_INSTALL_SSL"
+		echo "TARGET_INSTALL_SSL_HSTS       = $TARGET_INSTALL_SSL_HSTS"
+		echo "TARGET_INSTALL_SSL_FORCE      = $TARGET_INSTALL_SSL_FORCE"
+		echo "CREATE_TARGET_USER            = $CREATE_TARGET_USER"
+		echo "CREATE_TARGET_DOMAIN          = $CREATE_TARGET_DOMAIN"
+		echo "CREATE_TARGET_DATABASE        = $CREATE_TARGET_DATABASE"
+		echo ""
+	fi
+
+else
+	# Set target user
+	CREATE_TARGET_USER='no'
+	CREATE_TARGET_DOMAIN='no'
+
+	if [ -z "$TARGET_USER" ]; then
+		TARGET_USER=$($HESTIA/bin/v-search-domain-owner "$TARGET_DOMAIN")
+		if [ -z "$TARGET_USER" ]; then
+			TARGET_USER="$SOURCE_USER"
+			CREATE_TARGET_DOMAIN='yes'
+		fi
+	else
+		if [ ! -d "/home/$TARGET_USER" ]; then
+			CREATE_TARGET_USER='yes'
+		fi
+		if [ ! -d "/home/$TARGET_USER/web/$TARGET_DOMAIN/public_html" ]; then
+			CREATE_TARGET_DOMAIN='yes'
+		fi
+	fi
+
+	# Set target dir
+	TARGET_DIR="/home/$TARGET_USER/web/$TARGET_DOMAIN/public_html"
+
+	CHECK_PUBLIC_SHTML=$($HESTIA/bin/v-list-web-domain "$TARGET_USER" "$TARGET_DOMAIN" | grep 'SSL:' | grep -c 'single')
+	if [ $CHECK_PUBLIC_SHTML -eq 1 ]; then
+		TARGET_DIR="/home/$TARGET_USER/web/$TARGET_DOMAIN/public_shtml"
+	fi
+
+	if [ -n "$SITE_SUBDIR" ]; then
+		TARGET_DIR="$TARGET_DIR/$SITE_SUBDIR"
+	fi
+
+	TARGET_INSTALL_SSL='no'
+	if [ $SOURCE_HAS_SSL = "yes" ]; then
+		TARGET_INSTALL_SSL='yes'
+	fi
+
+	TARGET_INSTALL_SSL_HSTS='no'
+	if [ $SOURCE_HAS_SSL_HSTS = "yes" ]; then
+		TARGET_INSTALL_SSL_HSTS='yes'
+	fi
+
+	TARGET_INSTALL_SSL_FORCE='no'
+	if [ $SOURCE_HAS_SSL_FORCE = "yes" ]; then
+		TARGET_INSTALL_SSL_FORCE='yes'
+	fi
+
+	TARGET_IP="$SOURCE_IP"
+	TARGET_TYPE="$SOURCE_TYPE"
+	TARGET_BACKEND="$SOURCE_BACKEND"
+	TARGET_TEMPLATE="$SOURCE_TEMPLATE"
+	TARGET_PROXY_TEMPLATE="$SOURCE_PROXY_TEMPLATE"
+	TARGET_PROXY_EXTENSION="$SOURCE_PROXY_EXTENSION"
+	TARGET_FPM_VERSION="$SOURCE_FPM_VERSION"
+
+	if [ "$SOURCE_TYPE" != "static" ]; then
+
+		TARGET_CONFIG_FILE="$SOURCE_CONFIG_FILE" 
+		TARGET_CONFIG_FILE_FULL_PATH="$TARGET_DIR/$SOURCE_CONFIG_FILE"
+
+		TARGET_DB_TYPE="$SOURCE_DB_TYPE"  
+		TARGET_DB_CHARSET="$SOURCE_DB_CHARSET"
+		TARGET_DB_HOST="$SOURCE_DB_HOST"
+
+		# Set database name to $TARGET_DOMAIN with and without $TARGET_USER prefix
+		TARGET_DB_NAME=$(echo "$TARGET_DOMAIN" | sed 's#\.#_#g')
+		TARGET_DB_NAME_WITHOUT_PREFIX="$TARGET_DB_NAME"
+		TARGET_DB_NAME="$TARGET_USER"_"$TARGET_DB_NAME"
+
+		# Set database username to $TARGET_DOMAIN with and without $TARGET_USER prefix
+		TARGET_DB_USER="$TARGET_DB_NAME"
+		TARGET_DB_USER_WITHOUT_PREFIX="$TARGET_DB_NAME_WITHOUT_PREFIX"
+
+		TARGET_DB_PASS=$SOURCE_DB_PASS
+
+		# Make sure table doesn't exist. Warn user if it does
+		if [ "$DB_TYPE" = "mysql" ]; then
+			DB_exists=$(mysqlshow | grep -ow "$TARGET_DB_NAME")
+			if [ "$DB_exists" = "$TARGET_DB_NAME" ]; then
+				echo "WARNING: target database '$TARGET_DB_NAME' exists"
+				echo "WARNING: target database will be DROPPED and RE-POPULATED"
+				CREATE_TARGET_DATABASE='no'
+				TARGET_DB_EXISTS='yes'
+			else
+				CREATE_TARGET_DATABASE='yes'
+				TARGET_DB_EXISTS='no'
+			fi
+		fi
+	fi
+
+	if [ $DEBUG_BLOCK -eq 1 ]; then
+		echo "==============================================================================="
+		echo "TARGET CONFIG (target domain does not exist):"
+		echo "==============================================================================="
+		echo "TARGET_DOMAIN                 = $TARGET_DOMAIN"
+		echo "TARGET_USER                   = $TARGET_USER"
+		echo "TARGET_DIR                    = $TARGET_DIR"
+		echo "TARGET_SUBDIR                 = $TARGET_SUBDIR"
+		echo "TARGET_TYPE                   = $TARGET_TYPE"
+		echo "TARGET_HAS_SSL                = $TARGET_HAS_SSL"
+		echo "TARGET_HAS_SSL_HSTS           = $TARGET_HAS_SSL_HSTS"
+		echo "TARGET_HAS_SSL_FORCE          = $TARGET_HAS_SSL_FORCE"
+		echo "TARGET_IP                     = $TARGET_IP"
+		echo "TARGET_BACKEND                = $TARGET_BACKEND"
+		echo "TARGET_TEMPLATE               = $TARGET_TEMPLATE"
+		echo "TARGET_PROXY_TEMPLATE         = $TARGET_PROXY_TEMPLATE"
+		echo "TARGET_PROXY_EXTENSION        = $TARGET_PROXY_EXTENSION"
+		echo "TARGET_FPM_VERSION            = $TARGET_FPM_VERSION"
+		echo "TARGET_CONFIG_FILE            = $TARGET_CONFIG_FILE"
+		echo "TARGET_CONFIG_FILE_FULL_PATH  = $TARGET_CONFIG_FILE_FULL_PATH"
+		echo "TARGET_DB_EXISTS              = $TARGET_DB_EXISTS"
+		echo "TARGET_DB_TYPE                = $TARGET_DB_TYPE"
+		echo "TARGET_DB_CHARSET             = $TARGET_DB_CHARSET"
+		echo "TARGET_DB_HOST                = $TARGET_DB_HOST"
+		echo "TARGET_DB_NAME                = $TARGET_DB_NAME"
+		echo "TARGET_DB_USER                = $TARGET_DB_USER"
+		echo "TARGET_DB_PASS                = $TARGET_DB_PASS"
+		echo "TARGET_DB_NAME_WITHOUT_PREFIX = $TARGET_DB_NAME_WITHOUT_PREFIX"
+		echo "TARGET_DB_USER_WITHOUT_PREFIX = $TARGET_DB_USER_WITHOUT_PREFIX"
+		echo "SEARCH_FOR_CONFIGS_DB_NAME    = $SEARCH_FOR_CONFIGS_DB_NAME"
+		echo "SEARCH_FOR_CONFIGS_DB_USER    = $SEARCH_FOR_CONFIGS_DB_USER"
+		echo ""
+		echo "==============================================================================="
+		echo "TARGET CONTROL CHECKS (target domain does not exist):"
+		echo "==============================================================================="
+		echo "TARGET_DOMAIN_EXISTS          = $TARGET_DOMAIN_EXISTS"
+		echo "TARGET_INSTALL_SSL            = $TARGET_INSTALL_SSL"
+		echo "TARGET_INSTALL_SSL_HSTS       = $TARGET_INSTALL_SSL_HSTS"
+		echo "TARGET_INSTALL_SSL_FORCE      = $TARGET_INSTALL_SSL_FORCE"
+		echo "CREATE_TARGET_USER            = $CREATE_TARGET_USER"
+		echo "CREATE_TARGET_DOMAIN          = $CREATE_TARGET_DOMAIN"
+		echo "CREATE_TARGET_DATABASE        = $CREATE_TARGET_DATABASE"
+		echo ""
+	fi
+
+fi
+
+# TODO: hudok cleanup
+# Add pause to review info during tests
+read -p "=== Press Enter to continue ==="
+# ----------- Check for tools -------------
+
+# Install SRDB or wp-cli
+if [ "$SOURCE_TYPE" != "static" ]; then
+	if [ "$SOURCE_TYPE" != "wordpress" ]; then
+		if [ ! -f "/root/Search-Replace-DB/srdb.cli.php" ]; then
+			cd /root
+			git clone https://github.com/interconnectit/Search-Replace-DB.git
+		fi
+	else
+		if [ ! -f "/usr/local/bin/wp" ]; then
+			echo "=== Downloading latest wp-cli"
+			wget -nv https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /usr/local/bin/wp
+			chmod +x /usr/local/bin/wp
+		fi
+	fi
+fi
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+# Create target user
+if [ "$CREATE_TARGET_USER" = "yes" ]; then
+	pass=$(generate_password)
+	echo "=== Create user $TARGET_USER, pass=$pass"
+
+	$HESTIA/bin/v-update-user-quota "$TARGET_USER"
+	$HESTIA/bin/v-add-user-sftp-jail "$TARGET_USER"
+	# user / password / email / package / name / optional lastname
+	$HESTIA/bin/v-add-user "$TARGET_USER" "$pass" "info@$TARGET_DOMAIN" "default" "$TARGET_USER"
+	$HESTIA/bin/v-change-user-language "$TARGET_USER" "en"
+fi
+
+# Create target domain
+if [ "$CREATE_TARGET_DOMAIN" = "yes" ]; then
+	echo "=== Create domain $TARGET_DOMAIN"
+	# mimic web interface output. probably not needed
+	$HESTIA/bin/v-restart-service 'php${TARGET_FPM_VERSION}-fpm' "yes"
+	# user / domain / optional template / optional restart
+	$HESTIA/bin/v-add-web-domain-backend  "$TARGET_USER" "$TARGET_DOMAIN" "default" "yes"
+	# user / domain / optional ip / optional restart / optional aliases / optional extensions
+	$HESTIA/bin/v-add-web-domain "$TARGET_USER" "$TARGET_DOMAIN" "$TARGET_IP" "yes"
+	rm $TARGET_DIR/index.html
+fi
+
+# Install SSL
+# TODO: hudok cleanup. Disable for now
+if [ "$HUDOK" = "yes" ]; then
+if [ "$TARGET_INSTALL_SSL" = "yes" ]; then
+	echo "=== Installing LetsEncrypt for domain $TARGET_DOMAIN"
+	$HESTIA/bin/v-add-letsencrypt-domain "$TARGET_USER" "$TARGET_DOMAIN" "www.$TARGET_DOMAIN" "yes"
+	if [ $? -ne 0 ]; then
+		echo "=== LetsEncrypt installation failed"
+	fi
+fi
+fi
+
+# Set target template to be the same as source
+if [ -n "$TARGET_TEMPLATE" ]; then
+	echo "=== Set $TARGET_TEMPLATE template to domain $TARGET_DOMAIN"
+	# user / domain / template / optional restart
+	$HESTIA/bin/v-change-web-domain-tpl "$TARGET_USER" "$TARGET_DOMAIN" "$TARGET_TEMPLATE" "yes"
+fi
+
+# TODO: hudok cleanup needs testing with apache + nginx
+# Set target proxy template to be the same as source
+if [ -n "$TARGET_PROXY_TEMPLATE" ]; then
+	echo "=== Set $TARGET_PROXY_TEMPLATE proxy template to domain $TARGET_DOMAIN"
+	# user / domain / template / optional proxy extensions / optional restart
+	$HESTIA/bin/v-change-web-domain-proxy-tpl "$TARGET_USER" "$TARGET_DOMAIN" "$TARGET_PROXY_TEMPLATE" "$TARGET_PROXY_EXTENSION" "yes"
+fi
+
+# TODO: hudok cleanup and test Opencart
+# Apparently Opencart exclusive
+if [ "$TARGET_SITE_SUBDIR" = ".." ]; then
+	if [ -n "$TARGET_FPM_VERSION" ]; then
+		POOLD_FILE="/etc/php/$TARGET_FPM_VERSION/fpm/pool.d/$TARGET_DOMAIN.conf"
+		echo "=== Removing public_html from open_basedir in $POOLD_FILE"
+		sed -i "s|/public_html:|:|g" $POOLD_FILE
+		sed -i "s|/public_shtml:|:|g" $POOLD_FILE
+		# delete the second '/home/$TARGET_USER/web/$TARGET_DOMAIN:' occurrence
+		sed -i "s/\/home\/$TARGET_USER\/web\/$TARGET_DOMAIN\://2" $POOLD_FILE
+		systemctl restart php${TARGET_FPM_VERSION}-fpm
+	fi
+fi
+
+# Create target database
+if [ "$CREATE_TARGET_DATABASE" = "yes" ]; then
+	echo "=== Create database $TARGET_DB_NAME"
+	# user / database / database user / database password / optional type / optional host / optional charset
+	$HESTIA/bin/v-add-database "$TARGET_USER" "$TARGET_DB_NAME_WITHOUT_PREFIX" "$TARGET_DB_USER_WITHOUT_PREFIX" "$TARGET_DB_PASS" "$DB_TYPE" "$TARGET_DB_HOST" "$DB_CHARSET"
+fi
+
+# Create temp dir for database dump
+echo "=== Dumping database $SOURCE_DB_NAME"
+if [ -d "/root/db_temp" ]; then
+	rm -rf /root/db_temp
+fi
+mkdir -p /root/db_temp
+
+# Dump source database
+echo "=== Dumping database $SOURCE_DB_NAME"
+mysqldump $SOURCE_DB_NAME > /root/db_temp/$SOURCE_DB_NAME.sql
+
+# TODO: hudok drop db tables before populating if it exists or delete db and create
+# thinking about 'send to production' functionality
+# Populate target database
+echo "=== Importing to database $TARGET_DB_NAME"
+mysql $TARGET_DB_NAME < /root/db_temp/$SOURCE_DB_NAME.sql
+rm -rf /root/db_temp
+
+# Copy source files to target dir
+echo "=== Copying files from $SOURCE_DIR to $TARGET_DIR"
+if [ "$SITE_SUBDIR" != ".." ]; then
+	echo "====== Executing: rsync -a --delete $SOURCE_DIR/ $TARGET_DIR/"
+	rsync -a --delete $SOURCE_DIR/ $TARGET_DIR/
+else
+	echo "====== Executing: rsync -a --delete --exclude 'logs/*' $SOURCE_DIR/ $TARGET_DIR/"
+	rsync -a --delete --exclude 'logs/*' $SOURCE_DIR/ $TARGET_DIR/
+fi
+
+# Set target ownership
+echo "=== Chowning to $TARGET_USER:$TARGET_USER in folder $TARGET_DIR"
+chown -R $TARGET_USER:$TARGET_USER $TARGET_DIR
+
+# TODO: hudok cleanup
+# Replace old DB name. username and password in config file
+# Can't see where this is used. Maybe Joomla, OpenCart or similar
+# Find a simpler approach if possible with all combinations
+# replace_php_config_value "${SOURCE_DB_NAME}" "${TARGET_DB_NAME}" "$TARGET_CONFIG_FILE_FULL_PATH" "yes"
+# replace_php_config_value "${SOURCE_DB_USER}" "${TARGET_DB_USER}" "$TARGET_CONFIG_FILE_FULL_PATH" "yes"
+# replace_php_config_value "${SOURCE_DB_PASS}" "${TARGET_DB_PASS}" "$TARGET_CONFIG_FILE_FULL_PATH" "yes"
+
+# Replace $SOURCE_DOMAIN with $TARGET_DOMAIN in $TARGET_DIR
+# Also replace $USER if '$SOURCE_USER != $TARGET_USER'
+echo "=== Replacing $SOURCE_DOMAIN with $TARGET_DOMAIN by searching in folder $TARGET_DIR"
+REGEXP_SOURCE_DOMAIN="${SOURCE_DOMAIN//\./\\.}"
+grep -rl "$REGEXP_SOURCE_DOMAIN" $TARGET_DIR | xargs sed -i "s#$REGEXP_SOURCE_DOMAIN#$TARGET_DOMAIN#g"
+if [ "$SOURCE_USER" != "$TARGET_USER" ]; then
+	echo "=== Replacing /home/$SOURCE_USER/ to /home/$TARGET_USER/ by searching in folder $TARGET_DIR"
+	grep -rl "/home/$SOURCE_USER/" $TARGET_DIR | xargs sed -i "s#/home/$SOURCE_USER/#/home/$TARGET_USER/#g"
+fi
+
+# WordPress exclusive
+if [ "$SOURCE_TYPE" = "wordpress" ]; then
+	cd $TARGET_DIR
+	echo "=== Replacing $SOURCE_DOMAIN with $TARGET_DOMAIN in database $TARGET_DB_NAME"
+	sudo -H -u$TARGET_USER wp search-replace "$SOURCE_DOMAIN" "$TARGET_DOMAIN" --precise --all-tables --skip-columns=guid
+	if [ "$SOURCE_USER" != "$TARGET_USER" ]; then
+		echo "=== Replacing /home/$SOURCE_USER/ to /home/$TARGET_USER/ in database $TARGET_DB_NAME"
+		sudo -H -u$TARGET_USER wp search-replace "/home/$SOURCE_USER/" "/home/$TARGET_USER/" --precise --all-tables --skip-columns=guid
+	fi
+	sudo -H -u$TARGET_USER wp cache flush
+	sudo -H -u$TARGET_USER wp config shuffle-salts WP_CACHE_KEY_SALT --force
+	sudo -H -u$TARGET_USER wp config shuffle-salts
+fi
+
+# TODO: hudok cleanup and test Opencart
+# Apparently Opencart exclusive
+if [ -n "$SEARCH_FOR_CONFIGS_DB_NAME" ]; then
+	echo "=== Replacing ${SOURCE_DB_NAME} with ${TARGET_DB_NAME} by searching in folder $TARGET_DIR [SEARCH_FOR_CONFIGS_DB_NAME]"
+	grep -rl "${SOURCE_DB_NAME}" $TARGET_DIR | xargs sed -i "s#${SOURCE_DB_NAME}#${TARGET_DB_NAME}#g"
+fi
+
+if [ -n "$SEARCH_FOR_CONFIGS_DB_USER" ]; then
+	DO_SEARCH_FOR_CONFIGS_DB_USER=1;
+	if [ -n "$SEARCH_FOR_CONFIGS_DB_NAME" ] && [ "$SEARCH_FOR_CONFIGS_DB_NAME" = "$SEARCH_FOR_CONFIGS_DB_USER" ]; then
+		DO_SEARCH_FOR_CONFIGS_DB_USER=0
+	fi
+	if [ $DO_SEARCH_FOR_CONFIGS_DB_USER -eq 1 ]; then
+		echo "=== Replacing ${SOURCE_DB_USER} with ${TARGET_DB_USER} by searching in folder $TARGET_DIR [SEARCH_FOR_CONFIGS_DB_USER]"
+		grep -rl "${SOURCE_DB_USER}" $TARGET_DIR | xargs sed -i "s#${SOURCE_DB_USER}#${TARGET_DB_USER}#g"
+	fi
+fi
+
+# Joomla, OpenCart, etc
+if [ $SOURCE_TYPE != "wordpress" ] && [ $SOURCE_TYPE != "static" ]; then
+	echo "=== Replacing $SOURCE_DOMAIN with $TARGET_DOMAIN in database $TARGET_DB_NAME"
+	php /root/Search-Replace-DB/srdb.cli.php -h localhost -n "$TARGET_DB_NAME" -u "$TARGET_DB_USER" -p "$TARGET_DB_PASS" -s "$SOURCE_DOMAIN" -r "$TARGET_DOMAIN"
+	if [ "$SOURCE_USER" != "$TARGET_USER" ]; then
+		echo "=== Replacing /home/$SOURCE_USER/ to /home/$TARGET_USER/ in database $TARGET_DB_NAME"
+		php /root/Search-Replace-DB/srdb.cli.php -h localhost -n "$TARGET_DB_NAME" -u "$TARGET_DB_USER" -p "$TARGET_DB_PASS" -s "/home/$SOURCE_USER/" -r "/home/$TARGET_USER/"
+	fi
+fi
+
+echo "===== DONE ===="
+echo "You can visit http://$TARGET_DOMAIN/"
+
+#----------------------------------------------------------#
+#                       Hestia                             #
+#----------------------------------------------------------#
+
+# Logging
+log_event "$OK" "$ARGUMENTS"
+
+exit
+

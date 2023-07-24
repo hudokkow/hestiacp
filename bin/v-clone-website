@@ -1,0 +1,472 @@
+#!/bin/bash
+# info: add firewall ipset
+# options: SOURCE_DOMAIN TARGET_DOMAIN
+#
+# example: v-clone-website example.com example.org
+#
+# Migration tool that will copy the whole site from one (sub)domain to another (sub)domain (on the same server), changing URLs in the database, taking into account serialized arrays.
+# Useful for making a website staging copy in one command-line.
+# It automatically detects WordPress, reading the DB user, DB name, DB pass, and cloning to a new database, with the corresponding wp-config.php file update during the process.
+
+if [ $# -lt 2 ]; then
+	echo "USAGE: v-clone-website SOURCE_DOMAIN TARGET_DOMAIN"
+	echo "Available parameters:"
+	echo ""
+	echo "--SOURCE_DB_NAME=...      source database name" 
+	echo "--SOURCE_DB_USERNAME=...  source database username"
+	echo "--SOURCE_DB_PASSWORD=...  source database password"
+	echo "--TARGET_USER=...         target user"
+	echo "--TARGET_DB_NAME=...      target database name"
+	echo "--TARGET_DB_USERNAME=...  target database username"
+	echo "--TARGET_DB_PASSWORD=...  target database password"
+	echo "--TARGET_DB_SUFFIX=...    will be added to database name"
+	echo "--TARGET_DATABASE=...     overrides --TARGET_DB_NAME, --TARGET_DB_USERNAME and --TARGET_DB_SUFFIX"
+	echo "--SITE_SUBDIR=...         location of the site base dir inside public_html/"
+	echo "--CONFIG_FILE=...         location of the site config file"
+	exit 1
+fi
+
+#----------------------------------------------------------#
+#                    Variable & Function                   #
+#----------------------------------------------------------#
+
+SOURCE_DOMAIN=$1
+TARGET_DOMAIN=$2
+
+# Bail early if SOURCE_DOMAIN doesn't exist
+user=$($HESTIA/bin/v-search-domain-owner "$SOURCE_DOMAIN")
+if [ -z "$user" ]; then
+	echo "Error: domain $SOURCE_DOMAIN does not exist"
+	exit 2
+fi
+
+# Importing system environment
+source /etc/profile
+
+# Includes
+source $HESTIA/func/main.sh
+source $HESTIA/func/db.sh
+source $HESTIA/conf/hestia.conf
+
+SOURCE_DB_NAME=''
+SOURCE_DB_USERNAME=''
+SOURCE_DB_PASSWORD=''
+SOURCE_CONFIG_FILE=''
+TARGET_DB_NAME=''
+TARGET_DB_USERNAME=''
+TARGET_DB_PASSWORD=''
+TARGET_DB_SUFFIX='_migrated'
+SITE_SUBDIR=''
+SEARCH_FOR_CONFIGS_DB_NAME=''
+SEARCH_FOR_CONFIGS_DB_USERNAME=''
+
+if [ ! -z "$MAX_DBUSER_LEN" ] && [ "$MAX_DBUSER_LEN" -ge 80  ]; then
+	TARGET_DB_SUFFIX=''
+fi
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+
+# check_args '2' "$#" 'SOURCE_DOMAIN TARGET_DOMAIN'
+is_domain_format_valid "$SOURCE_DOMAIN"
+is_domain_format_valid "$TARGET_DOMAIN"
+
+SOURCE_USER=$user
+
+# Grab SOURCE_DOMAIN info
+#
+# This is the data that provides
+#
+# DATABASE_NAME_WITHOUT_USER_PREFIX='dbname'
+# DATABASE_USERNAME_WITHOUT_USER_PREFIX='dbuser'
+# DATABASE_NAME='user_dbname'
+# DATABASE_USERNAME='user_dbuser'
+# DATABASE_PASSWORD='passW0rd'
+# DATABASE_HOSTNAME='localhost'
+# CONFIG_FILE_FULL_PATH='/home/user/web/example.com/public_html/wp-config.php'
+# CONFIG_FILE='wp-config.php'
+# CMS_TYPE='wordpress'
+# SITE_FOLDER='/home/user/web/example.com/public_html'
+# SITE_SUBFOLDER=''
+# SITE_USER='user'
+
+if [ -z "$SITE_SUBDIR" ]; then
+	r=$($HESTIA/bin/v-get-site-info "$SOURCE_DOMAIN")
+else
+	r=$($HESTIA/bin/v-get-site-info "$SOURCE_DOMAIN" "$SITE_SUBDIR")
+fi
+
+eval $r
+
+SOURCE_FOLDER=$SITE_FOLDER
+
+if [ ! -z "$CONFIG_FILE" ]; then
+	SOURCE_CONFIG_FILE=$CONFIG_FILE
+fi
+if [ ! -z "$SOURCE_CONFIG_FILE" ]; then
+	SOURCE_CONFIG_FILE_FULL_PATH="$SOURCE_FOLDER/$SOURCE_CONFIG_FILE"
+fi
+
+if [ ! -z "$CONFIG_FILE_FULL_PATH" ]; then
+	SOURCE_CONFIG_FILE_FULL_PATH=$CONFIG_FILE_FULL_PATH
+fi
+
+if [ ! -f "$SOURCE_CONFIG_FILE_FULL_PATH" ]; then
+	echo "Error: SOURCE_CONFIG_FILE_FULL_PATH $SOURCE_CONFIG_FILE_FULL_PATH does not exist"
+	exit 3
+fi
+
+WORDPRESS_DETECTED=0
+if [ "$CMS_TYPE" = "wordpress" ]; then
+	WORDPRESS_DETECTED=1
+fi
+
+if [ -z "$SOURCE_DB_NAME" ]; then
+	SOURCE_DB_NAME=$DATABASE_NAME
+fi
+
+if [ -z "$SOURCE_DB_USERNAME" ]; then
+	SOURCE_DB_USERNAME=$DATABASE_USERNAME
+fi
+
+if [ -z "$SOURCE_DB_PASSWORD" ]; then
+	SOURCE_DB_PASSWORD=$DATABASE_PASSWORD
+fi
+
+if [ -z "$SOURCE_DB_NAME" ]; then
+	echo "Error: SOURCE_DB_NAME is empty"
+	exit 4
+fi
+if [ -z "$SOURCE_DB_USERNAME" ]; then
+	echo "Error: SOURCE_DB_USERNAME is empty"
+	exit 5
+fi
+if [ -z "$SOURCE_DB_PASSWORD" ]; then
+	echo "Error: SOURCE_DB_PASSWORD is empty"
+	exit 6
+fi
+
+DB_exist=$(check_if_database_exists "$user" "$SOURCE_DB_NAME")
+if [ "$DB_exist" = "no" ]; then
+	echo "Error: database $SOURCE_DB_NAME does not exist"
+	exit 7
+fi
+
+SOURCE_DB_NAME_WITHOUT_PREFIX=$(get_database_name_without_user_prefix "$SOURCE_USER" "$SOURCE_DB_NAME")
+SOURCE_DB_USERNAME_WITHOUT_PREFIX=$(get_database_name_without_user_prefix "$SOURCE_USER" "$SOURCE_DB_USERNAME")
+
+SOURCE_DOMAIN_HAS_SSL=0
+if [ -f "/home/$SOURCE_USER/conf/web/$SOURCE_DOMAIN/ssl/$SOURCE_DOMAIN.ca" ]; then
+	SOURCE_DOMAIN_HAS_SSL=1
+fi
+
+SOURCE_DOMAIN_TPL=$($HESTIA/bin/v-list-web-domain "$SOURCE_USER" "$SOURCE_DOMAIN" | grep 'TEMPLATE:' | awk '{print $2}')
+SOURCE_DOMAIN_PROXY_TPL=$($HESTIA/bin/v-list-web-domain "$SOURCE_USER" "$SOURCE_DOMAIN" | grep 'PROXY:' | awk '{print $2}')
+SOURCE_DOMAIN_PROXY_EXT=$($HESTIA/bin/v-list-web-domain "$SOURCE_USER" "$SOURCE_DOMAIN" | grep 'PROXY EXT:' | cut -d ' ' -f8- | sed "s# #,#g")
+
+# ----------- TO -------------
+
+CREATE_TARGET_USER=0
+CREATE_TARGET_DOMAIN=0
+
+if [ -z "$TARGET_USER" ]; then
+	TARGET_USER=$($HESTIA/bin/v-search-domain-owner "$TARGET_DOMAIN")
+	if [ -z "$TARGET_USER" ]; then
+		TARGET_USER=$SOURCE_USER
+		CREATE_TARGET_DOMAIN=1
+	fi
+else
+	if [ ! -d "/home/$TARGET_USER" ]; then
+		CREATE_TARGET_USER=1
+	fi
+	if [ ! -d "/home/$TARGET_USER/web/$TARGET_DOMAIN/public_html" ]; then
+		CREATE_TARGET_DOMAIN=1
+	fi
+fi
+
+TARGET_FOLDER="/home/$TARGET_USER/web/$TARGET_DOMAIN/public_html"
+CHECK_PUBLIC_SHTML=$($HESTIA/bin/v-list-web-domain "$TARGET_USER" "$TARGET_DOMAIN" | grep 'SSL:' | grep -c 'single')
+if [ $CHECK_PUBLIC_SHTML -eq 1 ]; then
+	TARGET_FOLDER="/home/$TARGET_USER/web/$TARGET_DOMAIN/public_shtml"
+fi
+if [ ! -z "$SITE_SUBDIR" ]; then
+	TARGET_FOLDER="$TARGET_FOLDER/$SITE_SUBDIR"
+fi
+
+TARGET_CONFIG_FILE_FULL_PATH="$TARGET_FOLDER/$SOURCE_CONFIG_FILE"
+
+# hudok: let's use the domain name without TLD for the database name
+# TARGET_DB_NAME=$(echo "$TARGET_DOMAIN" | sed 's#\.#_#g' | rev | cut -d '_' -f 2- | rev)
+
+if [ ! -z "$MAX_DBUSER_LEN" ] && [ "$MAX_DBUSER_LEN" -ge 80  ] && [ -z "$TARGET_DB_SUFFIX" ]; then
+	TARGET_DB_NAME=$(echo "$TARGET_DOMAIN" | sed 's#\.#_#g')
+	TARGET_DB_NAME="${TARGET_USER}_$TARGET_DB_NAME"
+	TARGET_DB_USERNAME=$TARGET_DB_NAME
+else
+	LENGTH_OF_TARGET_DB_SUFFIX=${#TARGET_DB_SUFFIX}
+	if [ -z "$TARGET_DB_NAME" ]; then
+		LENGTH_OF_TARGET_DB_NAME=${#SOURCE_DB_NAME}
+		START_FROM=$((LENGTH_OF_TARGET_DB_NAME-LENGTH_OF_TARGET_DB_SUFFIX))
+		CHECK_PREFIX=${SOURCE_DB_NAME:START_FROM}
+		if [ "$CHECK_PREFIX" = "${TARGET_DB_SUFFIX}" ]; then
+			TARGET_DB_NAME="${TARGET_USER}_${SOURCE_DB_NAME_WITHOUT_PREFIX}"
+			LENGTH_OF_TARGET_DB_NAME=${#TARGET_DB_NAME}
+			CUT_TO=$((LENGTH_OF_TARGET_DB_NAME-LENGTH_OF_TARGET_DB_SUFFIX))
+			TARGET_DB_NAME=${TARGET_DB_NAME:0:CUT_TO}
+		else
+			TARGET_DB_NAME="${TARGET_USER}_${SOURCE_DB_NAME_WITHOUT_PREFIX}${TARGET_DB_SUFFIX}"
+		fi
+	fi
+	if [ -z "$TARGET_DB_USERNAME" ]; then
+		LENGTH_OF_TARGET_DB_USERNAME=${#SOURCE_DB_USERNAME}
+		START_FROM=$((LENGTH_OF_TARGET_DB_USERNAME-LENGTH_OF_TARGET_DB_SUFFIX))
+		CHECK_PREFIX=${SOURCE_DB_USERNAME:START_FROM}
+		if [ "$CHECK_PREFIX" = "${TARGET_DB_SUFFIX}" ]; then
+			TARGET_DB_USERNAME="${TARGET_USER}_${SOURCE_DB_USERNAME_WITHOUT_PREFIX}"
+			LENGTH_OF_TARGET_DB_USERNAME=${#TARGET_DB_USERNAME}
+			CUT_TO=$((LENGTH_OF_TARGET_DB_USERNAME-LENGTH_OF_TARGET_DB_SUFFIX))
+			TARGET_DB_USERNAME=${TARGET_DB_USERNAME:0:CUT_TO}
+		else
+			TARGET_DB_USERNAME="${TARGET_USER}_${SOURCE_DB_USERNAME_WITHOUT_PREFIX}${TARGET_DB_SUFFIX}"
+		fi
+	fi
+fi
+
+if [ ! -z "$TARGET_DATABASE" ]; then
+	TARGET_DB_USERNAME=$TARGET_DATABASE
+	TARGET_DB_NAME=$TARGET_DATABASE
+fi
+if [ -z "$TARGET_DB_PASSWORD" ]; then
+	TARGET_DB_PASSWORD=$SOURCE_DB_PASSWORD
+fi
+if [ -z "$TARGET_DB_NAME" ]; then
+	echo "Error: TARGET_DB_NAME $TARGET_DB_NAME is empty"
+	exit 10
+fi
+if [ -z "$TARGET_DB_USERNAME" ]; then
+	echo "Error: TARGET_DB_USERNAME $TARGET_DB_USERNAME is empty"
+	exit 11
+fi
+if [ -z "$TARGET_DB_PASSWORD" ]; then
+	echo "Error: TARGET_DB_PASSWORD $TARGET_DB_PASSWORD is empty"
+	exit 12
+fi
+
+TARGET_DB_NAME_WITHOUT_PREFIX=$(get_database_name_without_user_prefix "$TARGET_USER" "$TARGET_DB_NAME")
+TARGET_DB_USERNAME_WITHOUT_PREFIX=$(get_database_name_without_user_prefix "$TARGET_USER" "$TARGET_DB_USERNAME")
+
+TARGET_DOMAIN_HAS_SSL=0
+if [ -f "/home/$TARGET_USER/conf/web/$TARGET_DOMAIN/ssl/$TARGET_DOMAIN.ca" ]; then
+	TARGET_DOMAIN_HAS_SSL=1
+fi
+SHOULD_INSTALL_SSL=0
+if [ $SOURCE_DOMAIN_HAS_SSL -eq 1 ] && [ $TARGET_DOMAIN_HAS_SSL -eq 0 ]; then
+	SHOULD_INSTALL_SSL=1
+fi
+
+SOURCE_FPM_VER=""
+if [[ $SOURCE_DOMAIN_TPL == "PHP-FPM-"* ]]; then
+	SOURCE_FPM_TPL_VER=${SOURCE_DOMAIN_TPL:8:2}
+	SOURCE_FPM_VER="${SOURCE_DOMAIN_TPL:8:1}.${SOURCE_DOMAIN_TPL:9:1}"
+fi
+
+# ----------- CHECK -------------
+
+if [ $WORDPRESS_DETECTED -eq 0 ]; then
+	if [ ! -f "/root/Search-Replace-DB/srdb.cli.php" ]; then
+		if [ ! -f "/usr/bin/git" ]; then
+			apt-get update > /dev/null 2>&1
+			apt-get -y install git > /dev/null 2>&1
+		fi
+		cd /root
+		git clone https://github.com/interconnectit/Search-Replace-DB.git
+	fi
+else
+	if [ ! -f "/usr/local/bin/wp" ]; then
+		echo "=== Downloading latest wp-cli"
+		wget -nv https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /usr/local/bin/wp
+		chmod +x /usr/local/bin/wp
+	fi
+fi
+
+CREATE_TARGET_DATABASE=0
+object=$(grep "DB='$TARGET_DB_NAME'" $HESTIA/data/users/$TARGET_USER/db.conf)
+if [ -z "$object" ]; then
+	CREATE_TARGET_DATABASE=1
+fi
+
+# ----------- PRINT -------------
+
+echo "SOURCE:"
+echo "==============================================================================="
+echo "SOURCE_DOMAIN                     = $SOURCE_DOMAIN"
+echo "SOURCE_USER                       = $SOURCE_USER"
+echo "SOURCE_FOLDER                     = $SOURCE_FOLDER"
+echo "SOURCE_CONFIG_FILE_FULL_PATH      = $SOURCE_CONFIG_FILE_FULL_PATH"
+echo "SOURCE_DB_NAME                    = $SOURCE_DB_NAME"
+echo "SOURCE_DB_USERNAME                = $SOURCE_DB_USERNAME"
+echo "SOURCE_DB_PASSWORD                = $SOURCE_DB_PASSWORD"
+echo "SOURCE_DB_NAME_WITHOUT_PREFIX     = $SOURCE_DB_NAME_WITHOUT_PREFIX"
+echo "SOURCE_DB_USERNAME_WITHOUT_PREFIX = $SOURCE_DB_USERNAME_WITHOUT_PREFIX"
+echo "SOURCE_DOMAIN_TPL                 = $SOURCE_DOMAIN_TPL"
+echo "SOURCE_FPM_VER                    = $SOURCE_FPM_VER"
+echo "SOURCE_DOMAIN_PROXY_TPL           = $SOURCE_DOMAIN_PROXY_TPL"
+echo "SOURCE_DOMAIN_PROXY_EXT           = $SOURCE_DOMAIN_PROXY_EXT"
+echo ""
+echo "TARGET:"
+echo "==============================================================================="
+echo "TARGET_DOMAIN                     = $TARGET_DOMAIN"
+echo "TARGET_USER                       = $TARGET_USER"
+echo "TARGET_FOLDER                     = $TARGET_FOLDER"
+echo "TARGET_CONFIG_FILE_FULL_PATH      = $TARGET_CONFIG_FILE_FULL_PATH"
+echo "TARGET_DB_NAME                    = $TARGET_DB_NAME"
+echo "TARGET_DB_USERNAME                = $TARGET_DB_USERNAME"
+echo "TARGET_DB_PASSWORD                = $TARGET_DB_PASSWORD"
+echo "TARGET_DB_NAME_WITHOUT_PREFIX     = $TARGET_DB_NAME_WITHOUT_PREFIX"
+echo "TARGET_DB_USERNAME_WITHOUT_PREFIX = $TARGET_DB_USERNAME_WITHOUT_PREFIX"
+echo "TARGET_DB_SUFFIX                  = $TARGET_DB_SUFFIX"
+echo "CREATE_TARGET_USER                = $CREATE_TARGET_USER"
+echo "CREATE_TARGET_DOMAIN              = $CREATE_TARGET_DOMAIN"
+echo "CREATE_TARGET_DATABASE            = $CREATE_TARGET_DATABASE"
+echo ""
+echo "OTHERS:"
+echo "==============================================================================="
+echo "SITE_SUBDIR                       = $SITE_SUBDIR"
+echo "CMS_TYPE                          = $CMS_TYPE"
+echo "WORDPRESS_DETECTED                = $WORDPRESS_DETECTED"
+echo "CONFIG_FILE                       = $CONFIG_FILE"
+echo "SHOULD_INSTALL_SSL                = $SHOULD_INSTALL_SSL"
+echo "SEARCH_FOR_CONFIGS_DB_NAME        = $SEARCH_FOR_CONFIGS_DB_NAME"
+echo "SEARCH_FOR_CONFIGS_DB_USERNAME    = $SEARCH_FOR_CONFIGS_DB_USERNAME"
+echo ""
+read -p "=== Press Enter to continue ==="
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+if [ $CREATE_TARGET_USER -eq 1 ]; then
+	pass=$(generate_password)
+	echo "=== Create user $TARGET_USER, pass=$pass"
+	$HESTIA/bin/v-add-user "$TARGET_USER" "$pass" "info@$TARGET_DOMAIN" "default" "Cloned" "site"
+fi
+
+if [ $CREATE_TARGET_DOMAIN -eq 1 ]; then
+	echo "=== Create domain $TARGET_DOMAIN"
+	$HESTIA/bin/v-add-domain "$TARGET_USER" "$TARGET_DOMAIN"
+	rm $TARGET_FOLDER/index.html
+fi
+
+if [ $SHOULD_INSTALL_SSL -eq 1 ]; then
+	echo "=== Installing LetsEncrypt for domain $TARGET_DOMAIN"
+	$HESTIA/bin/v-add-letsencrypt-domain "$TARGET_USER" "$TARGET_DOMAIN" "www.$TARGET_DOMAIN" "yes"
+	if [ $? -ne 0 ]; then
+		echo "=== LetsEncrypt installation failed"
+	fi
+fi
+
+if [ ! -z "$SOURCE_DOMAIN_TPL" ]; then
+	echo "=== Set $SOURCE_DOMAIN_TPL template to domain $TARGET_DOMAIN"
+	$HESTIA/bin/v-change-web-domain-tpl "$TARGET_USER" "$TARGET_DOMAIN" "$SOURCE_DOMAIN_TPL" "yes"
+fi
+
+if [ "$SITE_SUBDIR" = ".." ]; then
+	if [ ! -z "$SOURCE_FPM_VER" ]; then
+		POOLD_FILE="/etc/php/$SOURCE_FPM_VER/fpm/pool.d/$TARGET_DOMAIN.conf"
+		echo "=== Removing public_html from open_basedir in $POOLD_FILE"
+		sed -i "s|/public_html:|:|g" $POOLD_FILE
+		sed -i "s|/public_shtml:|:|g" $POOLD_FILE
+		systemctl restart php${SOURCE_FPM_VER}-fpm
+	fi
+fi
+
+if [ ! -z "$SOURCE_DOMAIN_PROXY_TPL" ]; then
+	echo "=== Set $SOURCE_DOMAIN_PROXY_TPL proxy template to domain $TARGET_DOMAIN"
+	$HESTIA/bin/v-change-web-domain-proxy-tpl "$TARGET_USER" "$TARGET_DOMAIN" "$SOURCE_DOMAIN_PROXY_TPL" "$SOURCE_DOMAIN_PROXY_EXT" "yes"
+fi
+
+if [ $CREATE_TARGET_DATABASE -eq 1 ]; then
+	echo "=== Create database $TARGET_DB_NAME"
+	$HESTIA/bin/v-add-database "$TARGET_USER" "$TARGET_DB_NAME_WITHOUT_PREFIX" "$TARGET_DB_USERNAME_WITHOUT_PREFIX" "$TARGET_DB_PASSWORD" 'mysql' 'localhost' 'utf8'
+fi
+
+echo "=== Dumping database $SOURCE_DB_NAME"
+if [ -d "/root/temp" ]; then
+	rm -rf /root/temp
+fi
+mkdir -p /root/temp
+cd /root/temp
+mysqldump $SOURCE_DB_NAME > $SOURCE_DB_NAME.sql
+echo "=== Importing to database $TARGET_DB_NAME"
+mysql $TARGET_DB_NAME < $SOURCE_DB_NAME.sql
+
+echo "=== Copying files from $SOURCE_FOLDER to folder $TARGET_FOLDER"
+if [ "$SITE_SUBDIR" != ".." ]; then
+	echo "====== Executing: rsync -a --delete $SOURCE_FOLDER/ $TARGET_FOLDER/"
+	rsync -a --delete $SOURCE_FOLDER/ $TARGET_FOLDER/
+else
+	echo "====== Executing: rsync -a --delete --exclude 'logs/*' $SOURCE_FOLDER/ $TARGET_FOLDER/"
+	rsync -a --delete --exclude 'logs/*' $SOURCE_FOLDER/ $TARGET_FOLDER/
+fi
+echo "=== Chowning to $TARGET_USER:$TARGET_USER in folder $TARGET_FOLDER"
+chown -R $TARGET_USER:$TARGET_USER $TARGET_FOLDER
+
+replace_php_config_value "${SOURCE_DB_NAME}" "${TARGET_DB_NAME}" "$TARGET_CONFIG_FILE_FULL_PATH" "yes"
+replace_php_config_value "${SOURCE_DB_USERNAME}" "${TARGET_DB_USERNAME}" "$TARGET_CONFIG_FILE_FULL_PATH" "yes"
+replace_php_config_value "${SOURCE_DB_PASSWORD}" "${TARGET_DB_PASSWORD}" "$TARGET_CONFIG_FILE_FULL_PATH" "yes"
+
+echo "=== Replacing $SOURCE_DOMAIN to $TARGET_DOMAIN by searching in folder $TARGET_FOLDER"
+REGEXP_SOURCE_DOMAIN="${SOURCE_DOMAIN//\./\\.}"
+grep -rl "$REGEXP_SOURCE_DOMAIN" $TARGET_FOLDER | xargs sed -i "s#$REGEXP_SOURCE_DOMAIN#$TARGET_DOMAIN#g"
+if [ "$SOURCE_USER" != "$TARGET_USER" ]; then
+	echo "=== Replacing /home/$SOURCE_USER/ to /home/$TARGET_USER/ by searching in folder $TARGET_FOLDER"
+	grep -rl "/home/$SOURCE_USER/" $TARGET_FOLDER | xargs sed -i "s#/home/$SOURCE_USER/#/home/$TARGET_USER/#g"
+fi
+if [ ! -z "$SEARCH_FOR_CONFIGS_DB_NAME" ]; then
+	echo "=== Replacing ${SOURCE_DB_NAME} to ${TARGET_DB_NAME} by searching in folder $TARGET_FOLDER [SEARCH_FOR_CONFIGS_DB_NAME]"
+	grep -rl "${SOURCE_DB_NAME}" $TARGET_FOLDER | xargs sed -i "s#${SOURCE_DB_NAME}#${TARGET_DB_NAME}#g"
+fi
+if [ ! -z "$SEARCH_FOR_CONFIGS_DB_USERNAME" ]; then
+	DO_SEARCH_FOR_CONFIGS_DB_USERNAME=1;
+	if [ ! -z "$SEARCH_FOR_CONFIGS_DB_NAME" ] && [ "$SEARCH_FOR_CONFIGS_DB_NAME" = "$SEARCH_FOR_CONFIGS_DB_USERNAME" ]; then
+		DO_SEARCH_FOR_CONFIGS_DB_USERNAME=0
+	fi
+	if [ $DO_SEARCH_FOR_CONFIGS_DB_USERNAME -eq 1 ]; then
+		echo "=== Replacing ${SOURCE_DB_USERNAME} to ${TARGET_DB_USERNAME} by searching in folder $TARGET_FOLDER [SEARCH_FOR_CONFIGS_DB_USERNAME]"
+		grep -rl "${SOURCE_DB_USERNAME}" $TARGET_FOLDER | xargs sed -i "s#${SOURCE_DB_USERNAME}#${TARGET_DB_USERNAME}#g"
+	fi
+fi
+
+if [ $WORDPRESS_DETECTED -eq 0 ]; then
+	echo "=== Replacing $SOURCE_DOMAIN to $TARGET_DOMAIN in database $TARGET_DB_NAME"
+	php /root/Search-Replace-DB/srdb.cli.php -h localhost -n "$TARGET_DB_NAME" -u "$TARGET_DB_USERNAME" -p "$TARGET_DB_PASSWORD" -s "$SOURCE_DOMAIN" -r "$TARGET_DOMAIN"
+	if [ "$SOURCE_USER" != "$TARGET_USER" ]; then
+		echo "=== Replacing /home/$SOURCE_USER/ to /home/$TARGET_USER/ in database $TARGET_DB_NAME"
+		php /root/Search-Replace-DB/srdb.cli.php -h localhost -n "$TARGET_DB_NAME" -u "$TARGET_DB_USERNAME" -p "$TARGET_DB_PASSWORD" -s "/home/$SOURCE_USER/" -r "/home/$TARGET_USER/"
+	fi
+else
+	cd $TARGET_FOLDER
+	echo "=== Replacing $SOURCE_DOMAIN to $TARGET_DOMAIN in database $TARGET_DB_NAME"
+	sudo -H -u$TARGET_USER wp search-replace "$SOURCE_DOMAIN" "$TARGET_DOMAIN" --precise --all-tables --skip-columns=guid
+	if [ "$SOURCE_USER" != "$TARGET_USER" ]; then
+		echo "=== Replacing /home/$SOURCE_USER/ to /home/$TARGET_USER/ in database $TARGET_DB_NAME"
+		sudo -H -u$TARGET_USER wp search-replace "/home/$SOURCE_USER/" "/home/$TARGET_USER/" --precise --all-tables --skip-columns=guid
+	fi
+	sudo -H -u$TARGET_USER wp cache flush
+	sudo -H -u$TARGET_USER wp config shuffle-salts WP_CACHE_KEY_SALT --force
+	sudo -H -u$TARGET_USER wp config shuffle-salts
+fi
+
+echo "===== DONE ===="
+echo "You can visit http://$TARGET_DOMAIN/"
+
+#----------------------------------------------------------#
+#                       Hestia                             #
+#----------------------------------------------------------#
+
+# Logging
+log_event "$OK" "$ARGUMENTS"
+
+exit
+

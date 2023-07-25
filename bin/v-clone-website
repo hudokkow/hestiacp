@@ -26,27 +26,27 @@ if [ $# -lt 2 ]; then
 fi
 
 #----------------------------------------------------------#
-#                    Variable & Function                   #
+#                Variables & Functions                     #
 #----------------------------------------------------------#
 
+# Argument definition
 SOURCE_DOMAIN=$1
 TARGET_DOMAIN=$2
-
-# Bail early if SOURCE_DOMAIN doesn't exist
-user=$($HESTIA/bin/v-search-domain-owner "$SOURCE_DOMAIN")
-if [ -z "$user" ]; then
-	echo "Error: domain $SOURCE_DOMAIN does not exist"
-	exit 2
-fi
 
 # Importing system environment
 source /etc/profile
 
 # Includes
+# shellcheck source=/etc/hestiacp/hestia.conf
+source /etc/hestiacp/hestia.conf
+# shellcheck source=/usr/local/hestia/func/main.sh
 source $HESTIA/func/main.sh
+# shellcheck source=/usr/local/hestia/func/db.sh
 source $HESTIA/func/db.sh
-source $HESTIA/conf/hestia.conf
+# load config file
+source_conf "$HESTIA/conf/hestia.conf"
 
+# Make sure we start fresh
 SOURCE_DB_NAME=''
 SOURCE_DB_USERNAME=''
 SOURCE_DB_PASSWORD=''
@@ -62,28 +62,35 @@ SEARCH_FOR_CONFIGS_DB_USERNAME=''
 #                    Verifications                         #
 #----------------------------------------------------------#
 
-# check_args '2' "$#" 'SOURCE_DOMAIN TARGET_DOMAIN'
 is_domain_format_valid "$SOURCE_DOMAIN"
 is_domain_format_valid "$TARGET_DOMAIN"
+
+# Bail early if SOURCE_DOMAIN doesn't exist
+user=$($HESTIA/bin/v-search-domain-owner "$SOURCE_DOMAIN")
+if [ -z "$user" ]; then
+	echo "Error: domain $SOURCE_DOMAIN does not exist"
+	exit 2
+fi
 
 SOURCE_USER=$user
 
 # Grab SOURCE_DOMAIN info
 #
-# This is the data that provides
+# bin/v-get-site-info provides the following info:
 #
-# DATABASE_NAME_WITHOUT_USER_PREFIX='dbname'
-# DATABASE_USERNAME_WITHOUT_USER_PREFIX='dbuser'
-# DATABASE_NAME='user_dbname'
-# DATABASE_USERNAME='user_dbuser'
-# DATABASE_PASSWORD='passW0rd'
-# DATABASE_HOSTNAME='localhost'
-# CONFIG_FILE_FULL_PATH='/home/user/web/example.com/public_html/wp-config.php'
-# CONFIG_FILE='wp-config.php'
-# CMS_TYPE='wordpress'
-# SITE_FOLDER='/home/user/web/example.com/public_html'
-# SITE_SUBFOLDER=''
 # SITE_USER='user'
+# SITE_DIR='/home/user/web/example.com/public_html'
+# SITE_SUBDIR=''
+# SITE_HAS_SSL='1'
+# CMS_TYPE='wordpress'
+# CONFIG_FILE='wp-config.php'
+# CONFIG_FILE_FULL_PATH='/home/user/web/example.com/public_html/wp-config.php'
+# DB_HOSTNAME='localhost'
+# DB_NAME='user_dbname'
+# DB_USERNAME='user_dbuser'
+# DB_PASSWORD='passW0rd'
+# DB_NAME_WITHOUT_USER_PREFIX='dbname'
+# DB_USERNAME_WITHOUT_USER_PREFIX='dbuser'
 
 if [ -z "$SITE_SUBDIR" ]; then
 	r=$($HESTIA/bin/v-get-site-info "$SOURCE_DOMAIN")
@@ -93,13 +100,13 @@ fi
 
 eval $r
 
-SOURCE_FOLDER=$SITE_FOLDER
+SOURCE_DIR=$SITE_DIR
 
 if [ ! -z "$CONFIG_FILE" ]; then
 	SOURCE_CONFIG_FILE=$CONFIG_FILE
 fi
 if [ ! -z "$SOURCE_CONFIG_FILE" ]; then
-	SOURCE_CONFIG_FILE_FULL_PATH="$SOURCE_FOLDER/$SOURCE_CONFIG_FILE"
+	SOURCE_CONFIG_FILE_FULL_PATH="$SOURCE_DIR/$SOURCE_CONFIG_FILE"
 fi
 
 if [ ! -z "$CONFIG_FILE_FULL_PATH" ]; then
@@ -179,16 +186,16 @@ else
 	fi
 fi
 
-TARGET_FOLDER="/home/$TARGET_USER/web/$TARGET_DOMAIN/public_html"
+TARGET_DIR="/home/$TARGET_USER/web/$TARGET_DOMAIN/public_html"
 CHECK_PUBLIC_SHTML=$($HESTIA/bin/v-list-web-domain "$TARGET_USER" "$TARGET_DOMAIN" | grep 'SSL:' | grep -c 'single')
 if [ $CHECK_PUBLIC_SHTML -eq 1 ]; then
-	TARGET_FOLDER="/home/$TARGET_USER/web/$TARGET_DOMAIN/public_shtml"
+	TARGET_DIR="/home/$TARGET_USER/web/$TARGET_DOMAIN/public_shtml"
 fi
 if [ ! -z "$SITE_SUBDIR" ]; then
-	TARGET_FOLDER="$TARGET_FOLDER/$SITE_SUBDIR"
+	TARGET_DIR="$TARGET_DIR/$SITE_SUBDIR"
 fi
 
-TARGET_CONFIG_FILE_FULL_PATH="$TARGET_FOLDER/$SOURCE_CONFIG_FILE"
+TARGET_CONFIG_FILE_FULL_PATH="$TARGET_DIR/$SOURCE_CONFIG_FILE"
 
 TARGET_DB_NAME=$(echo "$TARGET_DOMAIN" | sed 's#\.#_#g' | rev | cut -d '_' -f 2- | rev)
 TARGET_DB_NAME="${TARGET_USER}_$TARGET_DB_NAME"
@@ -251,6 +258,7 @@ else
 	fi
 fi
 
+# Verify target database doesn't exist
 CREATE_TARGET_DATABASE=0
 object=$(grep "DB='$TARGET_DB_NAME'" $HESTIA/data/users/$TARGET_USER/db.conf)
 if [ -z "$object" ]; then
@@ -263,7 +271,7 @@ echo "SOURCE:"
 echo "==============================================================================="
 echo "SOURCE_DOMAIN                     = $SOURCE_DOMAIN"
 echo "SOURCE_USER                       = $SOURCE_USER"
-echo "SOURCE_FOLDER                     = $SOURCE_FOLDER"
+echo "SOURCE_DIR                     = $SOURCE_DIR"
 echo "SOURCE_CONFIG_FILE_FULL_PATH      = $SOURCE_CONFIG_FILE_FULL_PATH"
 echo "SOURCE_DB_NAME                    = $SOURCE_DB_NAME"
 echo "SOURCE_DB_USERNAME                = $SOURCE_DB_USERNAME"
@@ -279,7 +287,7 @@ echo "TARGET:"
 echo "==============================================================================="
 echo "TARGET_DOMAIN                     = $TARGET_DOMAIN"
 echo "TARGET_USER                       = $TARGET_USER"
-echo "TARGET_FOLDER                     = $TARGET_FOLDER"
+echo "TARGET_DIR                     = $TARGET_DIR"
 echo "TARGET_CONFIG_FILE_FULL_PATH      = $TARGET_CONFIG_FILE_FULL_PATH"
 echo "TARGET_DB_NAME                    = $TARGET_DB_NAME"
 echo "TARGET_DB_USERNAME                = $TARGET_DB_USERNAME"
@@ -315,7 +323,7 @@ fi
 if [ $CREATE_TARGET_DOMAIN -eq 1 ]; then
 	echo "=== Create domain $TARGET_DOMAIN"
 	$HESTIA/bin/v-add-domain "$TARGET_USER" "$TARGET_DOMAIN"
-	rm $TARGET_FOLDER/index.html
+	rm $TARGET_DIR/index.html
 fi
 
 if [ $SHOULD_INSTALL_SSL -eq 1 ]; then
@@ -361,31 +369,31 @@ mysqldump $SOURCE_DB_NAME > $SOURCE_DB_NAME.sql
 echo "=== Importing to database $TARGET_DB_NAME"
 mysql $TARGET_DB_NAME < $SOURCE_DB_NAME.sql
 
-echo "=== Copying files from $SOURCE_FOLDER to folder $TARGET_FOLDER"
+echo "=== Copying files from $SOURCE_DIR to folder $TARGET_DIR"
 if [ "$SITE_SUBDIR" != ".." ]; then
-	echo "====== Executing: rsync -a --delete $SOURCE_FOLDER/ $TARGET_FOLDER/"
-	rsync -a --delete $SOURCE_FOLDER/ $TARGET_FOLDER/
+	echo "====== Executing: rsync -a --delete $SOURCE_DIR/ $TARGET_DIR/"
+	rsync -a --delete $SOURCE_DIR/ $TARGET_DIR/
 else
-	echo "====== Executing: rsync -a --delete --exclude 'logs/*' $SOURCE_FOLDER/ $TARGET_FOLDER/"
-	rsync -a --delete --exclude 'logs/*' $SOURCE_FOLDER/ $TARGET_FOLDER/
+	echo "====== Executing: rsync -a --delete --exclude 'logs/*' $SOURCE_DIR/ $TARGET_DIR/"
+	rsync -a --delete --exclude 'logs/*' $SOURCE_DIR/ $TARGET_DIR/
 fi
-echo "=== Chowning to $TARGET_USER:$TARGET_USER in folder $TARGET_FOLDER"
-chown -R $TARGET_USER:$TARGET_USER $TARGET_FOLDER
+echo "=== Chowning to $TARGET_USER:$TARGET_USER in folder $TARGET_DIR"
+chown -R $TARGET_USER:$TARGET_USER $TARGET_DIR
 
 replace_php_config_value "${SOURCE_DB_NAME}" "${TARGET_DB_NAME}" "$TARGET_CONFIG_FILE_FULL_PATH" "yes"
 replace_php_config_value "${SOURCE_DB_USERNAME}" "${TARGET_DB_USERNAME}" "$TARGET_CONFIG_FILE_FULL_PATH" "yes"
 replace_php_config_value "${SOURCE_DB_PASSWORD}" "${TARGET_DB_PASSWORD}" "$TARGET_CONFIG_FILE_FULL_PATH" "yes"
 
-echo "=== Replacing $SOURCE_DOMAIN to $TARGET_DOMAIN by searching in folder $TARGET_FOLDER"
+echo "=== Replacing $SOURCE_DOMAIN to $TARGET_DOMAIN by searching in folder $TARGET_DIR"
 REGEXP_SOURCE_DOMAIN="${SOURCE_DOMAIN//\./\\.}"
-grep -rl "$REGEXP_SOURCE_DOMAIN" $TARGET_FOLDER | xargs sed -i "s#$REGEXP_SOURCE_DOMAIN#$TARGET_DOMAIN#g"
+grep -rl "$REGEXP_SOURCE_DOMAIN" $TARGET_DIR | xargs sed -i "s#$REGEXP_SOURCE_DOMAIN#$TARGET_DOMAIN#g"
 if [ "$SOURCE_USER" != "$TARGET_USER" ]; then
-	echo "=== Replacing /home/$SOURCE_USER/ to /home/$TARGET_USER/ by searching in folder $TARGET_FOLDER"
-	grep -rl "/home/$SOURCE_USER/" $TARGET_FOLDER | xargs sed -i "s#/home/$SOURCE_USER/#/home/$TARGET_USER/#g"
+	echo "=== Replacing /home/$SOURCE_USER/ to /home/$TARGET_USER/ by searching in folder $TARGET_DIR"
+	grep -rl "/home/$SOURCE_USER/" $TARGET_DIR | xargs sed -i "s#/home/$SOURCE_USER/#/home/$TARGET_USER/#g"
 fi
 if [ ! -z "$SEARCH_FOR_CONFIGS_DB_NAME" ]; then
-	echo "=== Replacing ${SOURCE_DB_NAME} to ${TARGET_DB_NAME} by searching in folder $TARGET_FOLDER [SEARCH_FOR_CONFIGS_DB_NAME]"
-	grep -rl "${SOURCE_DB_NAME}" $TARGET_FOLDER | xargs sed -i "s#${SOURCE_DB_NAME}#${TARGET_DB_NAME}#g"
+	echo "=== Replacing ${SOURCE_DB_NAME} to ${TARGET_DB_NAME} by searching in folder $TARGET_DIR [SEARCH_FOR_CONFIGS_DB_NAME]"
+	grep -rl "${SOURCE_DB_NAME}" $TARGET_DIR | xargs sed -i "s#${SOURCE_DB_NAME}#${TARGET_DB_NAME}#g"
 fi
 if [ ! -z "$SEARCH_FOR_CONFIGS_DB_USERNAME" ]; then
 	DO_SEARCH_FOR_CONFIGS_DB_USERNAME=1;
@@ -393,8 +401,8 @@ if [ ! -z "$SEARCH_FOR_CONFIGS_DB_USERNAME" ]; then
 		DO_SEARCH_FOR_CONFIGS_DB_USERNAME=0
 	fi
 	if [ $DO_SEARCH_FOR_CONFIGS_DB_USERNAME -eq 1 ]; then
-		echo "=== Replacing ${SOURCE_DB_USERNAME} to ${TARGET_DB_USERNAME} by searching in folder $TARGET_FOLDER [SEARCH_FOR_CONFIGS_DB_USERNAME]"
-		grep -rl "${SOURCE_DB_USERNAME}" $TARGET_FOLDER | xargs sed -i "s#${SOURCE_DB_USERNAME}#${TARGET_DB_USERNAME}#g"
+		echo "=== Replacing ${SOURCE_DB_USERNAME} to ${TARGET_DB_USERNAME} by searching in folder $TARGET_DIR [SEARCH_FOR_CONFIGS_DB_USERNAME]"
+		grep -rl "${SOURCE_DB_USERNAME}" $TARGET_DIR | xargs sed -i "s#${SOURCE_DB_USERNAME}#${TARGET_DB_USERNAME}#g"
 	fi
 fi
 
@@ -406,7 +414,7 @@ if [ $WORDPRESS_DETECTED -eq 0 ]; then
 		php /root/Search-Replace-DB/srdb.cli.php -h localhost -n "$TARGET_DB_NAME" -u "$TARGET_DB_USERNAME" -p "$TARGET_DB_PASSWORD" -s "/home/$SOURCE_USER/" -r "/home/$TARGET_USER/"
 	fi
 else
-	cd $TARGET_FOLDER
+	cd $TARGET_DIR
 	echo "=== Replacing $SOURCE_DOMAIN to $TARGET_DOMAIN in database $TARGET_DB_NAME"
 	sudo -H -u$TARGET_USER wp search-replace "$SOURCE_DOMAIN" "$TARGET_DOMAIN" --precise --all-tables --skip-columns=guid
 	if [ "$SOURCE_USER" != "$TARGET_USER" ]; then

@@ -81,7 +81,7 @@
 				<li class="server-summary-item">
 					<span class="server-summary-list-label"><?= _("Uptime") ?></span>
 					<span class="server-summary-list-value">
-						<?= humanize_time($sys["sysinfo"]["UPTIME"]) ?>
+						<?= $sys["sysinfo"]["UPTIME"] ?>
 					</span>
 				</li>
 			</ul>

@@ -62,6 +62,7 @@ SEARCH_FOR_CONFIGS_DB_USERNAME=''
 #                    Verifications                         #
 #----------------------------------------------------------#
 
+
 is_domain_format_valid "$SOURCE_DOMAIN"
 is_domain_format_valid "$TARGET_DOMAIN"
 
@@ -72,6 +73,10 @@ if [ -z "$user" ]; then
 	exit 2
 fi
 
+#----------------------------------------------------------#
+#                 SOURCE CONFIGURATION                     #
+#----------------------------------------------------------#
+
 SOURCE_USER=$user
 
 # Grab SOURCE_DOMAIN info
@@ -81,7 +86,7 @@ SOURCE_USER=$user
 # SITE_USER='user'
 # SITE_DIR='/home/user/web/example.com/public_html'
 # SITE_SUBDIR=''
-# SITE_HAS_SSL='1'
+# SITE_HAS_SSL='yes'
 # CMS_TYPE='wordpress'
 # CONFIG_FILE='wp-config.php'
 # CONFIG_FILE_FULL_PATH='/home/user/web/example.com/public_html/wp-config.php'
@@ -100,11 +105,13 @@ fi
 
 eval $r
 
+# Set source domain full path
 SOURCE_DIR=$SITE_DIR
 
 if [ ! -z "$CONFIG_FILE" ]; then
 	SOURCE_CONFIG_FILE=$CONFIG_FILE
 fi
+
 if [ ! -z "$SOURCE_CONFIG_FILE" ]; then
 	SOURCE_CONFIG_FILE_FULL_PATH="$SOURCE_DIR/$SOURCE_CONFIG_FILE"
 fi
@@ -124,17 +131,19 @@ if [ "$CMS_TYPE" = "wordpress" ]; then
 fi
 
 if [ -z "$SOURCE_DB_NAME" ]; then
-	SOURCE_DB_NAME=$DATABASE_NAME
+	SOURCE_DB_NAME=$DB_NAME
 fi
 
 if [ -z "$SOURCE_DB_USERNAME" ]; then
-	SOURCE_DB_USERNAME=$DATABASE_USERNAME
+	SOURCE_DB_USERNAME=$DB_USERNAME
 fi
 
 if [ -z "$SOURCE_DB_PASSWORD" ]; then
-	SOURCE_DB_PASSWORD=$DATABASE_PASSWORD
+	SOURCE_DB_PASSWORD=$DB_PASSWORD
 fi
 
+# hudok cleanup
+# doesn't make sense
 if [ -z "$SOURCE_DB_NAME" ]; then
 	echo "Error: SOURCE_DB_NAME is empty"
 	exit 4
@@ -147,26 +156,35 @@ if [ -z "$SOURCE_DB_PASSWORD" ]; then
 	echo "Error: SOURCE_DB_PASSWORD is empty"
 	exit 6
 fi
+# hudok cleanup
+# doesn't make sense
 
-DB_exist=$(check_if_database_exists "$user" "$SOURCE_DB_NAME")
-if [ "$DB_exist" = "no" ]; then
+# Check if source database exists
+DB_exists=$(check_if_database_exists "$user" "$SOURCE_DB_NAME")
+if [ "$DB_exists" = "no" ]; then
 	echo "Error: database $SOURCE_DB_NAME does not exist"
 	exit 7
 fi
 
-SOURCE_DB_NAME_WITHOUT_PREFIX=$(get_database_name_without_user_prefix "$SOURCE_USER" "$SOURCE_DB_NAME")
-SOURCE_DB_USERNAME_WITHOUT_PREFIX=$(get_database_name_without_user_prefix "$SOURCE_USER" "$SOURCE_DB_USERNAME")
+# hudok cleanup
+# functions probably no longer used
+SOURCE_DB_NAME_WITHOUT_PREFIX=$DB_NAME_WITHOUT_USER_PREFIX
+SOURCE_DB_USERNAME_WITHOUT_PREFIX=$DB_USERNAME_WITHOUT_USER_PREFIX
 
+# Check source domain SSL state
 SOURCE_DOMAIN_HAS_SSL=0
-if [ -f "/home/$SOURCE_USER/conf/web/$SOURCE_DOMAIN/ssl/$SOURCE_DOMAIN.ca" ]; then
+if [ "$SITE_HAS_SSL" = "yes" ]; then
 	SOURCE_DOMAIN_HAS_SSL=1
 fi
 
+# Check source domain used templates
 SOURCE_DOMAIN_TPL=$($HESTIA/bin/v-list-web-domain "$SOURCE_USER" "$SOURCE_DOMAIN" | grep 'TEMPLATE:' | awk '{print $2}')
 SOURCE_DOMAIN_PROXY_TPL=$($HESTIA/bin/v-list-web-domain "$SOURCE_USER" "$SOURCE_DOMAIN" | grep 'PROXY:' | awk '{print $2}')
 SOURCE_DOMAIN_PROXY_EXT=$($HESTIA/bin/v-list-web-domain "$SOURCE_USER" "$SOURCE_DOMAIN" | grep 'PROXY EXT:' | cut -d ' ' -f8- | sed "s# #,#g")
 
-# ----------- TO -------------
+#----------------------------------------------------------#
+#                 TARGET CONFIGURATION                     #
+#----------------------------------------------------------#
 
 CREATE_TARGET_USER=0
 CREATE_TARGET_DOMAIN=0
@@ -186,17 +204,21 @@ else
 	fi
 fi
 
+# Set target dir
 TARGET_DIR="/home/$TARGET_USER/web/$TARGET_DOMAIN/public_html"
+
 CHECK_PUBLIC_SHTML=$($HESTIA/bin/v-list-web-domain "$TARGET_USER" "$TARGET_DOMAIN" | grep 'SSL:' | grep -c 'single')
 if [ $CHECK_PUBLIC_SHTML -eq 1 ]; then
 	TARGET_DIR="/home/$TARGET_USER/web/$TARGET_DOMAIN/public_shtml"
 fi
+
 if [ ! -z "$SITE_SUBDIR" ]; then
 	TARGET_DIR="$TARGET_DIR/$SITE_SUBDIR"
 fi
 
 TARGET_CONFIG_FILE_FULL_PATH="$TARGET_DIR/$SOURCE_CONFIG_FILE"
 
+# Set database name to domain name minus the TLD
 TARGET_DB_NAME=$(echo "$TARGET_DOMAIN" | sed 's#\.#_#g' | rev | cut -d '_' -f 2- | rev)
 TARGET_DB_NAME="${TARGET_USER}_$TARGET_DB_NAME"
 TARGET_DB_USERNAME=$TARGET_DB_NAME
@@ -271,7 +293,7 @@ echo "SOURCE:"
 echo "==============================================================================="
 echo "SOURCE_DOMAIN                     = $SOURCE_DOMAIN"
 echo "SOURCE_USER                       = $SOURCE_USER"
-echo "SOURCE_DIR                     = $SOURCE_DIR"
+echo "SOURCE_DIR                        = $SOURCE_DIR"
 echo "SOURCE_CONFIG_FILE_FULL_PATH      = $SOURCE_CONFIG_FILE_FULL_PATH"
 echo "SOURCE_DB_NAME                    = $SOURCE_DB_NAME"
 echo "SOURCE_DB_USERNAME                = $SOURCE_DB_USERNAME"
@@ -287,7 +309,7 @@ echo "TARGET:"
 echo "==============================================================================="
 echo "TARGET_DOMAIN                     = $TARGET_DOMAIN"
 echo "TARGET_USER                       = $TARGET_USER"
-echo "TARGET_DIR                     = $TARGET_DIR"
+echo "TARGET_DIR                        = $TARGET_DIR"
 echo "TARGET_CONFIG_FILE_FULL_PATH      = $TARGET_CONFIG_FILE_FULL_PATH"
 echo "TARGET_DB_NAME                    = $TARGET_DB_NAME"
 echo "TARGET_DB_USERNAME                = $TARGET_DB_USERNAME"

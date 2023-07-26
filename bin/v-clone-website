@@ -10,24 +10,16 @@
 
 if [ $# -lt 2 ]; then
 	echo "USAGE: v-clone-website SOURCE_DOMAIN TARGET_DOMAIN"
-	echo "Available parameters:"
-	echo ""
-	echo "--SOURCE_DB_NAME=...      source database name" 
-	echo "--SOURCE_DB_USERNAME=...  source database username"
-	echo "--SOURCE_DB_PASSWORD=...  source database password"
-	echo "--TARGET_USER=...         target user"
-	echo "--TARGET_DB_NAME=...      target database name"
-	echo "--TARGET_DB_USERNAME=...  target database username"
-	echo "--TARGET_DB_PASSWORD=...  target database password"
-	echo "--TARGET_DATABASE=...     overrides --TARGET_DB_NAME and --TARGET_DB_USERNAME"
-	echo "--SITE_SUBDIR=...         location of the site base dir inside public_html/"
-	echo "--CONFIG_FILE=...         location of the site config file"
 	exit 1
 fi
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #
 #----------------------------------------------------------#
+
+# Debug
+# set -x
+# PS4=':$BASH_SOURCE:$LINENO+'; set -x
 
 # Argument definition
 SOURCE_DOMAIN=$1
@@ -46,27 +38,14 @@ source $HESTIA/func/db.sh
 # load config file
 source_conf "$HESTIA/conf/hestia.conf"
 
-# Make sure we start fresh
-SOURCE_DB_NAME=''
-SOURCE_DB_USERNAME=''
-SOURCE_DB_PASSWORD=''
-SOURCE_CONFIG_FILE=''
-TARGET_DB_NAME=''
-TARGET_DB_USERNAME=''
-TARGET_DB_PASSWORD=''
-SITE_SUBDIR=''
-SEARCH_FOR_CONFIGS_DB_NAME=''
-SEARCH_FOR_CONFIGS_DB_USERNAME=''
-
 #----------------------------------------------------------#
 #                    Verifications                         #
 #----------------------------------------------------------#
 
-
 is_domain_format_valid "$SOURCE_DOMAIN"
 is_domain_format_valid "$TARGET_DOMAIN"
 
-# Bail early if SOURCE_DOMAIN doesn't exist
+# Get user of SOURCE_DOMAIN or bail early if domain doesn't exist
 user=$($HESTIA/bin/v-search-domain-owner "$SOURCE_DOMAIN")
 if [ -z "$user" ]; then
 	echo "Error: domain $SOURCE_DOMAIN does not exist"
@@ -77,7 +56,24 @@ fi
 #                 SOURCE CONFIGURATION                     #
 #----------------------------------------------------------#
 
+# Set SOURCE_DOMAIN user
 SOURCE_USER=$user
+
+# hudok cleanup
+# SITE_USER=''
+# Make sure we start fresh
+SITE_DIR=''
+SITE_SUBDIR=''
+SITE_TYPE=''
+SITE_HAS_SSL=''
+CONFIG_FILE=''
+CONFIG_FILE_FULL_PATH=''
+DB_HOSTNAME=''
+DB_NAME=''
+DB_USERNAME=''
+DB_PASSWORD=''
+DB_NAME_WITHOUT_USER_PREFIX=''
+DB_USERNAME_WITHOUT_USER_PREFIX=''
 
 # Grab SOURCE_DOMAIN info
 #
@@ -86,8 +82,11 @@ SOURCE_USER=$user
 # SITE_USER='user'
 # SITE_DIR='/home/user/web/example.com/public_html'
 # SITE_SUBDIR=''
+# SITE_TYPE='wordpress'
 # SITE_HAS_SSL='yes'
-# CMS_TYPE='wordpress'
+# SITE_TEMPLATE='wordpress'
+# SITE_PROXY_TEMPLATE=''
+# SITE_PROXY_EXTENSION=''
 # CONFIG_FILE='wp-config.php'
 # CONFIG_FILE_FULL_PATH='/home/user/web/example.com/public_html/wp-config.php'
 # DB_HOSTNAME='localhost'
@@ -108,6 +107,7 @@ eval $r
 # Set source domain full path
 SOURCE_DIR=$SITE_DIR
 
+# Set config file and config file path
 if [ ! -z "$CONFIG_FILE" ]; then
 	SOURCE_CONFIG_FILE=$CONFIG_FILE
 fi
@@ -125,8 +125,15 @@ if [ ! -f "$SOURCE_CONFIG_FILE_FULL_PATH" ]; then
 	exit 3
 fi
 
+# hudok refactor
+# doesn't make sense. site might be static
+if [ ! -f "$SOURCE_CONFIG_FILE_FULL_PATH" ]; then
+	echo "Error: SOURCE_CONFIG_FILE_FULL_PATH $SOURCE_CONFIG_FILE_FULL_PATH does not exist"
+	exit 3
+fi
+
 WORDPRESS_DETECTED=0
-if [ "$CMS_TYPE" = "wordpress" ]; then
+if [ "$SITE_TYPE" = "wordpress" ]; then
 	WORDPRESS_DETECTED=1
 fi
 
@@ -177,11 +184,6 @@ if [ "$SITE_HAS_SSL" = "yes" ]; then
 	SOURCE_DOMAIN_HAS_SSL=1
 fi
 
-# Check source domain used templates
-SOURCE_DOMAIN_TPL=$($HESTIA/bin/v-list-web-domain "$SOURCE_USER" "$SOURCE_DOMAIN" | grep 'TEMPLATE:' | awk '{print $2}')
-SOURCE_DOMAIN_PROXY_TPL=$($HESTIA/bin/v-list-web-domain "$SOURCE_USER" "$SOURCE_DOMAIN" | grep 'PROXY:' | awk '{print $2}')
-SOURCE_DOMAIN_PROXY_EXT=$($HESTIA/bin/v-list-web-domain "$SOURCE_USER" "$SOURCE_DOMAIN" | grep 'PROXY EXT:' | cut -d ' ' -f8- | sed "s# #,#g")
-
 #----------------------------------------------------------#
 #                 TARGET CONFIGURATION                     #
 #----------------------------------------------------------#
@@ -222,6 +224,8 @@ TARGET_CONFIG_FILE_FULL_PATH="$TARGET_DIR/$SOURCE_CONFIG_FILE"
 TARGET_DB_NAME=$(echo "$TARGET_DOMAIN" | sed 's#\.#_#g' | rev | cut -d '_' -f 2- | rev)
 TARGET_DB_NAME="${TARGET_USER}_$TARGET_DB_NAME"
 TARGET_DB_USERNAME=$TARGET_DB_NAME
+TARGET_DB_NAME_WITHOUT_PREFIX=$TARGET_DB_NAME
+TARGET_DB_USERNAME_WITHOUT_PREFIX=$TARGET_DB_NAME
 
 if [ ! -z "$TARGET_DATABASE" ]; then
 	TARGET_DB_USERNAME=$TARGET_DATABASE
@@ -243,9 +247,6 @@ if [ -z "$TARGET_DB_PASSWORD" ]; then
 	exit 12
 fi
 
-TARGET_DB_NAME_WITHOUT_PREFIX=$(get_database_name_without_user_prefix "$TARGET_USER" "$TARGET_DB_NAME")
-TARGET_DB_USERNAME_WITHOUT_PREFIX=$(get_database_name_without_user_prefix "$TARGET_USER" "$TARGET_DB_USERNAME")
-
 TARGET_DOMAIN_HAS_SSL=0
 if [ -f "/home/$TARGET_USER/conf/web/$TARGET_DOMAIN/ssl/$TARGET_DOMAIN.ca" ]; then
 	TARGET_DOMAIN_HAS_SSL=1
@@ -255,10 +256,11 @@ if [ $SOURCE_DOMAIN_HAS_SSL -eq 1 ] && [ $TARGET_DOMAIN_HAS_SSL -eq 0 ]; then
 	SHOULD_INSTALL_SSL=1
 fi
 
+# hudok cleanup. can't find hestia equivalent
 SOURCE_FPM_VER=""
-if [[ $SOURCE_DOMAIN_TPL == "PHP-FPM-"* ]]; then
-	SOURCE_FPM_TPL_VER=${SOURCE_DOMAIN_TPL:8:2}
-	SOURCE_FPM_VER="${SOURCE_DOMAIN_TPL:8:1}.${SOURCE_DOMAIN_TPL:9:1}"
+if [[ $SITE_TEMPLATE == "PHP-FPM-"* ]]; then
+	SOURCE_FPM_TPL_VER=${SITE_TEMPLATE:8:2}
+	SOURCE_FPM_VER="${SITE_TEMPLATE:8:1}.${SITE_TEMPLATE:9:1}"
 fi
 
 # ----------- CHECK -------------
@@ -300,10 +302,10 @@ echo "SOURCE_DB_USERNAME                = $SOURCE_DB_USERNAME"
 echo "SOURCE_DB_PASSWORD                = $SOURCE_DB_PASSWORD"
 echo "SOURCE_DB_NAME_WITHOUT_PREFIX     = $SOURCE_DB_NAME_WITHOUT_PREFIX"
 echo "SOURCE_DB_USERNAME_WITHOUT_PREFIX = $SOURCE_DB_USERNAME_WITHOUT_PREFIX"
-echo "SOURCE_DOMAIN_TPL                 = $SOURCE_DOMAIN_TPL"
+echo "SITE_TEMPLATE                     = $SITE_TEMPLATE"
 echo "SOURCE_FPM_VER                    = $SOURCE_FPM_VER"
-echo "SOURCE_DOMAIN_PROXY_TPL           = $SOURCE_DOMAIN_PROXY_TPL"
-echo "SOURCE_DOMAIN_PROXY_EXT           = $SOURCE_DOMAIN_PROXY_EXT"
+echo "SITE_PROXY_TEMPLATE               = $SITE_PROXY_TEMPLATE"
+echo "SITE_PROXY_EXTENSION              = $SITE_PROXY_EXTENSION"
 echo ""
 echo "TARGET:"
 echo "==============================================================================="
@@ -323,7 +325,7 @@ echo ""
 echo "OTHERS:"
 echo "==============================================================================="
 echo "SITE_SUBDIR                       = $SITE_SUBDIR"
-echo "CMS_TYPE                          = $CMS_TYPE"
+echo "SITE_TYPE                         = $SITE_TYPE"
 echo "WORDPRESS_DETECTED                = $WORDPRESS_DETECTED"
 echo "CONFIG_FILE                       = $CONFIG_FILE"
 echo "SHOULD_INSTALL_SSL                = $SHOULD_INSTALL_SSL"
@@ -356,9 +358,9 @@ if [ $SHOULD_INSTALL_SSL -eq 1 ]; then
 	fi
 fi
 
-if [ ! -z "$SOURCE_DOMAIN_TPL" ]; then
-	echo "=== Set $SOURCE_DOMAIN_TPL template to domain $TARGET_DOMAIN"
-	$HESTIA/bin/v-change-web-domain-tpl "$TARGET_USER" "$TARGET_DOMAIN" "$SOURCE_DOMAIN_TPL" "yes"
+if [ ! -z "$SITE_TEMPLATE" ]; then
+	echo "=== Set $SITE_TEMPLATE template to domain $TARGET_DOMAIN"
+	$HESTIA/bin/v-change-web-domain-tpl "$TARGET_USER" "$TARGET_DOMAIN" "$SITE_TEMPLATE" "yes"
 fi
 
 if [ "$SITE_SUBDIR" = ".." ]; then
@@ -371,9 +373,9 @@ if [ "$SITE_SUBDIR" = ".." ]; then
 	fi
 fi
 
-if [ ! -z "$SOURCE_DOMAIN_PROXY_TPL" ]; then
-	echo "=== Set $SOURCE_DOMAIN_PROXY_TPL proxy template to domain $TARGET_DOMAIN"
-	$HESTIA/bin/v-change-web-domain-proxy-tpl "$TARGET_USER" "$TARGET_DOMAIN" "$SOURCE_DOMAIN_PROXY_TPL" "$SOURCE_DOMAIN_PROXY_EXT" "yes"
+if [ ! -z "$SITE_PROXY_TEMPLATE" ]; then
+	echo "=== Set $SITE_PROXY_TEMPLATE proxy template to domain $TARGET_DOMAIN"
+	$HESTIA/bin/v-change-web-domain-proxy-tpl "$TARGET_USER" "$TARGET_DOMAIN" "$SITE_PROXY_TEMPLATE" "$SITE_PROXY_EXTENSION" "yes"
 fi
 
 if [ $CREATE_TARGET_DATABASE -eq 1 ]; then

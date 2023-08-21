@@ -494,7 +494,6 @@ if [ "$CREATE_TARGET_DATABASE" = "yes" ]; then
 fi
 
 # Create temp dir for database dump
-echo "=== Dumping database $SOURCE_DB_NAME"
 if [ -d "/root/db_temp" ]; then
 	rm -rf /root/db_temp
 fi
@@ -559,19 +558,21 @@ fi
 
 # TODO: hudok cleanup and test Opencart
 # Apparently Opencart exclusive
-if [ -n "$SEARCH_FOR_CONFIGS_DB_NAME" ]; then
-	echo "=== Replacing ${SOURCE_DB_NAME} with ${TARGET_DB_NAME} by searching in folder $TARGET_DIR [SEARCH_FOR_CONFIGS_DB_NAME]"
-	grep -rl "${SOURCE_DB_NAME}" $TARGET_DIR | xargs sed -i "s#${SOURCE_DB_NAME}#${TARGET_DB_NAME}#g"
-fi
-
-if [ -n "$SEARCH_FOR_CONFIGS_DB_USER" ]; then
-	DO_SEARCH_FOR_CONFIGS_DB_USER=1;
-	if [ -n "$SEARCH_FOR_CONFIGS_DB_NAME" ] && [ "$SEARCH_FOR_CONFIGS_DB_NAME" = "$SEARCH_FOR_CONFIGS_DB_USER" ]; then
-		DO_SEARCH_FOR_CONFIGS_DB_USER=0
+if [ $SOURCE_TYPE = "opencart" ]
+	if [ -n "$SEARCH_FOR_CONFIGS_DB_NAME" ]; then
+		echo "=== Replacing ${SOURCE_DB_NAME} with ${TARGET_DB_NAME} by searching in folder $TARGET_DIR [SEARCH_FOR_CONFIGS_DB_NAME]"
+		grep -rl "${SOURCE_DB_NAME}" $TARGET_DIR | xargs sed -i "s#${SOURCE_DB_NAME}#${TARGET_DB_NAME}#g"
 	fi
-	if [ $DO_SEARCH_FOR_CONFIGS_DB_USER -eq 1 ]; then
-		echo "=== Replacing ${SOURCE_DB_USER} with ${TARGET_DB_USER} by searching in folder $TARGET_DIR [SEARCH_FOR_CONFIGS_DB_USER]"
-		grep -rl "${SOURCE_DB_USER}" $TARGET_DIR | xargs sed -i "s#${SOURCE_DB_USER}#${TARGET_DB_USER}#g"
+
+	if [ -n "$SEARCH_FOR_CONFIGS_DB_USER" ]; then
+		DO_SEARCH_FOR_CONFIGS_DB_USER=1;
+		if [ -n "$SEARCH_FOR_CONFIGS_DB_NAME" ] && [ "$SEARCH_FOR_CONFIGS_DB_NAME" = "$SEARCH_FOR_CONFIGS_DB_USER" ]; then
+			DO_SEARCH_FOR_CONFIGS_DB_USER=0
+		fi
+		if [ $DO_SEARCH_FOR_CONFIGS_DB_USER -eq 1 ]; then
+			echo "=== Replacing ${SOURCE_DB_USER} with ${TARGET_DB_USER} by searching in folder $TARGET_DIR [SEARCH_FOR_CONFIGS_DB_USER]"
+			grep -rl "${SOURCE_DB_USER}" $TARGET_DIR | xargs sed -i "s#${SOURCE_DB_USER}#${TARGET_DB_USER}#g"
+		fi
 	fi
 fi
 

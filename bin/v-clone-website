@@ -21,7 +21,7 @@ fi
 # Debug
 # PS4=':$BASH_SOURCE:$LINENO+'; set -x
 # TODO: hudok cleanup or disable after testing
-DEBUG_BLOCK=1
+SHOW_DEBUG_BLOCK='yes'
 
 # Argument definition
 SOURCE_DOMAIN=$1
@@ -101,7 +101,7 @@ SOURCE_IP="$SITE_IP"
 SOURCE_BACKEND="$SITE_BACKEND"
 SOURCE_TEMPLATE="$SITE_TEMPLATE"
 SOURCE_PROXY_TEMPLATE="$SITE_PROXY_TEMPLATE"
-SOURCE_PROXY_EXTENSION="$SITE_PROXY_EXTENSION"
+SOURCE_PROXY_EXTENSIONS="$SITE_PROXY_EXTENSIONS"
 SOURCE_FPM_VERSION="$FPM_VERSION"
 SOURCE_CONFIG_FILE="$CONFIG_FILE"
 SOURCE_CONFIG_FILE_FULL_PATH="$CONFIG_FILE_FULL_PATH"
@@ -121,7 +121,7 @@ if [ "$SOURCE_TYPE" = "opencart" ]; then
 fi
 
 # TODO: hudok cleanup or disable after testing
-if [ $DEBUG_BLOCK -eq 1 ]; then
+if [ $SHOW_DEBUG_BLOCK = 'yes' ]; then
 	echo "==============================================================================="
 	echo "SOURCE CONFIG:"
 	echo "==============================================================================="
@@ -137,7 +137,7 @@ if [ $DEBUG_BLOCK -eq 1 ]; then
 	echo "SOURCE_BACKEND                = $SOURCE_BACKEND"
 	echo "SOURCE_TEMPLATE               = $SOURCE_TEMPLATE"
 	echo "SOURCE_PROXY_TEMPLATE         = $SOURCE_PROXY_TEMPLATE"
-	echo "SOURCE_PROXY_EXTENSION        = $SOURCE_PROXY_EXTENSION"
+	echo "SOURCE_PROXY_EXTENSIONS       = $SOURCE_PROXY_EXTENSIONS"
 	echo "SOURCE_FPM_VERSION            = $SOURCE_FPM_VERSION"
 	echo "SOURCE_CONFIG_FILE            = $SOURCE_CONFIG_FILE"
 	echo "SOURCE_CONFIG_FILE_FULL_PATH  = $SOURCE_CONFIG_FILE_FULL_PATH"
@@ -175,7 +175,7 @@ if [ "$TARGET_DOMAIN_EXISTS" = "yes" ]; then
 	TARGET_BACKEND="$SITE_BACKEND"
 	TARGET_TEMPLATE="$SITE_TEMPLATE"
 	TARGET_PROXY_TEMPLATE="$SITE_PROXY_TEMPLATE"
-	TARGET_PROXY_EXTENSION="$SITE_PROXY_EXTENSION"
+	TARGET_PROXY_EXTENSIONS="$SITE_PROXY_EXTENSIONS"
 	TARGET_FPM_VERSION="$FPM_VERSION"
 	TARGET_CONFIG_FILE="$CONFIG_FILE"
 	TARGET_CONFIG_FILE_FULL_PATH="$CONFIG_FILE_FULL_PATH"
@@ -214,7 +214,7 @@ if [ "$TARGET_DOMAIN_EXISTS" = "yes" ]; then
 		CREATE_TARGET_DATABASE='no'
 	fi
 
-	if [ $DEBUG_BLOCK -eq 1 ]; then
+	if [ $SHOW_DEBUG_BLOCK = 'yes' ]; then
 		echo "==============================================================================="
 		echo "TARGET CONFIG (target domain exists):"
 		echo "==============================================================================="
@@ -230,7 +230,7 @@ if [ "$TARGET_DOMAIN_EXISTS" = "yes" ]; then
 		echo "TARGET_BACKEND                = $TARGET_BACKEND"
 		echo "TARGET_TEMPLATE               = $TARGET_TEMPLATE"
 		echo "TARGET_PROXY_TEMPLATE         = $TARGET_PROXY_TEMPLATE"
-		echo "TARGET_PROXY_EXTENSION        = $TARGET_PROXY_EXTENSION"
+		echo "TARGET_PROXY_EXTENSIONS       = $TARGET_PROXY_EXTENSIONS"
 		echo "TARGET_FPM_VERSION            = $TARGET_FPM_VERSION"
 		echo "TARGET_CONFIG_FILE            = $TARGET_CONFIG_FILE"
 		echo "TARGET_CONFIG_FILE_FULL_PATH  = $TARGET_CONFIG_FILE_FULL_PATH"
@@ -311,7 +311,7 @@ else
 	TARGET_BACKEND="$SOURCE_BACKEND"
 	TARGET_TEMPLATE="$SOURCE_TEMPLATE"
 	TARGET_PROXY_TEMPLATE="$SOURCE_PROXY_TEMPLATE"
-	TARGET_PROXY_EXTENSION="$SOURCE_PROXY_EXTENSION"
+	TARGET_PROXY_EXTENSIONS="$SOURCE_PROXY_EXTENSIONS"
 	TARGET_FPM_VERSION="$SOURCE_FPM_VERSION"
 
 	if [ "$SOURCE_TYPE" != "static" ]; then
@@ -349,7 +349,7 @@ else
 		fi
 	fi
 
-	if [ $DEBUG_BLOCK -eq 1 ]; then
+	if [ $SHOW_DEBUG_BLOCK = 'yes' ]; then
 		echo "==============================================================================="
 		echo "TARGET CONFIG (target domain does not exist):"
 		echo "==============================================================================="
@@ -365,7 +365,7 @@ else
 		echo "TARGET_BACKEND                = $TARGET_BACKEND"
 		echo "TARGET_TEMPLATE               = $TARGET_TEMPLATE"
 		echo "TARGET_PROXY_TEMPLATE         = $TARGET_PROXY_TEMPLATE"
-		echo "TARGET_PROXY_EXTENSION        = $TARGET_PROXY_EXTENSION"
+		echo "TARGET_PROXY_EXTENSIONS       = $TARGET_PROXY_EXTENSIONS"
 		echo "TARGET_FPM_VERSION            = $TARGET_FPM_VERSION"
 		echo "TARGET_CONFIG_FILE            = $TARGET_CONFIG_FILE"
 		echo "TARGET_CONFIG_FILE_FULL_PATH  = $TARGET_CONFIG_FILE_FULL_PATH"
@@ -469,7 +469,7 @@ fi
 if [ -n "$TARGET_PROXY_TEMPLATE" ]; then
 	echo "=== Set $TARGET_PROXY_TEMPLATE proxy template to domain $TARGET_DOMAIN"
 	# user / domain / template / optional proxy extensions / optional restart
-	$HESTIA/bin/v-change-web-domain-proxy-tpl "$TARGET_USER" "$TARGET_DOMAIN" "$TARGET_PROXY_TEMPLATE" "$TARGET_PROXY_EXTENSION" "yes"
+	$HESTIA/bin/v-change-web-domain-proxy-tpl "$TARGET_USER" "$TARGET_DOMAIN" "$TARGET_PROXY_TEMPLATE" "$TARGET_PROXY_EXTENSIONS" "yes"
 fi
 
 # TODO: hudok cleanup and test Opencart

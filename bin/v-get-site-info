@@ -17,7 +17,7 @@
 # SITE_BACKEND=PHP-8_2
 # SITE_TEMPLATE=wordpress
 # SITE_PROXY_TEMPLATE=
-# SITE_PROXY_EXTENSION=
+# SITE_PROXY_EXTENSIONS=
 # FPM_VERSION=8.2
 # CONFIG_FILE=wp-config.php
 # CONFIG_FILE_FULL_PATH=/home/user/web/example.com/public_html/wp-config.php
@@ -192,7 +192,7 @@ SITE_IP=$(echo "$domain_info" | grep 'IP:' | awk '{print $2}')
 SITE_BACKEND=$(echo "$domain_info" | grep 'BACKEND:' | awk '{print $2}')
 SITE_TEMPLATE=$(echo "$domain_info" | grep 'TEMPLATE:' | awk '{print $2}')
 SITE_PROXY_TEMPLATE=$(echo "$domain_info" | grep 'PROXY:' | awk '{print $2}')
-SITE_PROXY_EXTENSION=$(echo "$domain_info" | grep 'PROXY EXT:' | cut -d ' ' -f8- | sed "s# #,#g")
+SITE_PROXY_EXTENSIONS=$(echo "$domain_info" | grep 'PROXY EXT:' | cut -d ' ' -f8- | sed "s# #,#g")
 
 SITE_HAS_SSL='no'
 if [ -f "/home/$USER/conf/web/$DOMAIN/ssl/$DOMAIN.ca" ]; then
@@ -229,7 +229,7 @@ echo "SITE_IP=$SITE_IP"
 echo "SITE_BACKEND=$SITE_BACKEND"
 echo "SITE_TEMPLATE=$SITE_TEMPLATE"
 echo "SITE_PROXY_TEMPLATE=$SITE_PROXY_TEMPLATE"
-echo "SITE_PROXY_EXTENSION=$SITE_PROXY_EXTENSION"
+echo "SITE_PROXY_EXTENSIONS=$SITE_PROXY_EXTENSIONS"
 echo "FPM_VERSION=$FPM_VERSION"
 echo "CONFIG_FILE=$CONFIG_FILE"
 echo "CONFIG_FILE_FULL_PATH=$CONFIG_FILE_FULL_PATH"

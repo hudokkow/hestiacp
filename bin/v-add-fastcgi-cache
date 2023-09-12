@@ -7,6 +7,12 @@
 # This function enables FastCGI cache for nginx
 # Acceptable values for duration is time in seconds (10s) minutes (10m) or days (10d)
 # Add "yes" as last parameter to restart nginx
+#
+# code used in:
+#
+# func/rebuild.sh
+# test/test.bats
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

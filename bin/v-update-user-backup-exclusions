@@ -5,6 +5,11 @@
 # example: v-update-user-backup-exclusions admin /tmp/backup_exclusions
 #
 # This function for updating backup exclusion list
+#
+# code used in:
+#
+# bin/v-log-action
+# web/edit/backup/exclusions/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

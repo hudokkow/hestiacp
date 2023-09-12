@@ -5,6 +5,11 @@
 # example: v-delete-user-notification admin 1
 #
 # This function deletes user notification.
+#
+# code used in:
+#
+# test/test.bats
+# web/delete/notification/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

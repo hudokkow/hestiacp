@@ -5,6 +5,10 @@
 # example: v-add-mail-domain-antispam admin mydomain.tld
 #
 # This function enables spamassasin for incoming emails.
+#
+# code used in:
+#
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

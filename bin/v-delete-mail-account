@@ -5,6 +5,14 @@
 # example: v-delete-mail-account admin acme.com alice
 #
 # This function deletes email account.
+#
+# code used in:
+#
+# install/common/api/mail-accounts
+# test/test.bats
+# web/bulk/mail/index.php
+# web/delete/mail/index.php
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

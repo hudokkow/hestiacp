@@ -5,6 +5,13 @@
 # example: v-unsuspend-web-domains admin
 #
 # This function of unsuspending all user's sites.
+#
+# code used in:
+#
+# bin/v-delete-user
+# bin/v-restart-proxy
+# bin/v-restart-web
+# bin/v-unsuspend-user
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

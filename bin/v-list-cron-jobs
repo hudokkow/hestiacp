@@ -5,6 +5,13 @@
 # example: v-list-cron-jobs admin
 #
 # This function for obtaining the list of all users cron jobs.
+#
+# code used in:
+#
+# install/upgrade/versions/1.1.0.sh
+# install/upgrade/versions/1.2.0.sh
+# test/test.bats
+# web/list/cron/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

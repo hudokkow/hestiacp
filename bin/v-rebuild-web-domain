@@ -5,6 +5,33 @@
 # example: v-rebuild-web-domain user domain.tld
 #
 # This function rebuilds web configuration files.
+#
+# code used in:
+#
+# bin/v-add-web-domain
+# bin/v-add-web-domain-backend
+# bin/v-change-domain-owner
+# bin/v-change-sys-ip-nat
+# bin/v-change-sys-php
+# bin/v-change-web-domain-docroot
+# bin/v-change-web-domain-name
+# bin/v-change-web-domain-sslhome
+# bin/v-list-web-domain
+# bin/v-list-web-domains
+# bin/v-log-action
+# bin/v-rebuild-all
+# bin/v-suspend-web-domain
+# bin/v-unsuspend-web-domain
+# bin/v-update-sys-ip
+# bin/v-update-web-templates
+# func/rebuild.sh
+# func/upgrade.sh
+# install/upgrade/manual/install_awstats_geoip2.sh
+# install/upgrade/manual/install_awstats_geoip.sh
+# install/upgrade/manual/migrate_ngnix_apache_nginx-php-fpm.sh
+# test/test.bats
+# web/bulk/user/index.php
+# web/bulk/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

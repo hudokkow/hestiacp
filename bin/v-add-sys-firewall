@@ -5,6 +5,12 @@
 # example: v-add-sys-firewall
 #
 # This function enables the system firewall.
+#
+# code used in:
+#
+# install/upgrade/versions/1.4.13.sh
+# install/upgrade/versions/1.6.12.sh
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -6,6 +6,11 @@
 #
 # This function adds support for composer (php dependency manager)
 # Homepage: <https://getcomposer.org/>
+#
+# code used in:
+#
+# bin/v-add-sys-dependencies
+# bin/v-add-sys-filemanager
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

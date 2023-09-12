@@ -5,6 +5,11 @@
 # example: v-list-database-host mysql localhost
 #
 # This function for obtaining database host parameters.
+#
+# code used in:
+#
+# web/add/db/index.php
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

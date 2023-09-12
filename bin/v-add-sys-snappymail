@@ -3,6 +3,10 @@
 # options: [MODE]
 #
 # This function installs the SnappyMail webmail client.
+#
+# code used in:
+#
+# func/upgrade.sh
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

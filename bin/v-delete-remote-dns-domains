@@ -3,6 +3,13 @@
 # options: [HOST]
 #
 # This function deletes remote dns domains.
+#
+# code used in:
+#
+# bin/v-delete-dns-domain
+# bin/v-delete-dns-domains
+# bin/v-delete-dns-domains-src
+# bin/v-delete-remote-dns-host
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

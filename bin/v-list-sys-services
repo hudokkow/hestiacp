@@ -5,6 +5,13 @@
 # example: v-list-sys-services json
 #
 # This function for obtaining the list of configured system services.
+#
+# code used in:
+#
+# web/inc/main.php
+# web/list/server/index.php
+# web/locale/hestiacp.pot
+# web/locale/hst_scan_i18n.sh
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

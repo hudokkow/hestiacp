@@ -5,6 +5,14 @@
 # example: v-change-web-domain-backend-tpl admin acme.com PHP-7_4
 #
 # This function changes backend template
+#
+# code used in:
+#
+# install/upgrade/manual/migrate_apache.sh
+# install/upgrade/manual/migrate_multiphp.sh
+# test/test.bats
+# web/edit/web/index.php
+# web/src/app/System/HestiaApp.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -5,6 +5,17 @@
 # example: v-unsuspend-dns-domain alice wonderland.com
 #
 # This function unsuspends a certain user's domain.
+#
+# code used in:
+#
+# bin/v-change-domain-owner
+# bin/v-delete-user
+# bin/v-log-action
+# bin/v-unsuspend-domain
+# bin/v-unsuspend-user
+# test/test.bats
+# web/bulk/dns/index.php
+# web/unsuspend/dns/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

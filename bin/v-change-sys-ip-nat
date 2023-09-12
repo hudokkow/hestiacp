@@ -5,6 +5,13 @@
 # example: v-change-sys-ip-nat 10.0.0.1 203.0.113.1
 #
 # This function for changing NAT IP associated with IP.
+#
+# code used in:
+#
+# bin/v-update-sys-ip
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# web/edit/ip/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

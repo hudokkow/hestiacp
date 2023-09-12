@@ -5,6 +5,10 @@
 # example: v-list-user-stats admin
 #
 # This function for listing user statistics
+#
+# code used in:
+#
+# web/list/stats/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

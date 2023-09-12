@@ -5,6 +5,10 @@
 # example: v-update-web-domain-traff admin example.com
 #
 # This function recalculates bandwidth usage for specific domain.
+#
+# code used in:
+#
+# Not used anywhere
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

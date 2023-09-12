@@ -3,6 +3,13 @@
 # options: ACCESS_KEY_ID [FORMAT]
 #
 # example: v-list-access-key 1234567890ABCDefghij json
+#
+# code used in:
+#
+# bin/v-add-access-key
+# web/bulk/access-key/index.php
+# web/delete/access-key/index.php
+# web/list/access-key/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

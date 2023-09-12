@@ -5,6 +5,19 @@
 # example: v-add-sys-pma-sso
 #
 # This function enables support for SSO to phpMyAdmin
+#
+# code used in:
+#
+# bin/v-add-access-key
+# bin/v-add-sys-api-ip
+# install/deb/phpmyadmin/hestia-sso.php
+# install/upgrade/manual/migrate_phpmyadmin.sh
+# install/upgrade/versions/1.4.13.sh
+# install/upgrade/versions/1.4.3.sh
+# install/upgrade/versions/1.4.4.sh
+# install/upgrade/versions/1.6.0.sh
+# install/upgrade/versions/1.7.0.sh
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -5,6 +5,10 @@
 # example: v-delete-mail-domain-antispam admin mydomain.tld
 #
 # This function disable spamassasin for incoming emails.
+#
+# code used in:
+#
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

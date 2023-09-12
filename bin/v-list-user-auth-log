@@ -3,6 +3,10 @@
 # options: USER [FORMAT]
 #
 # This function of obtaining the list of 10 last users commands.
+#
+# code used in:
+#
+# web/list/log/auth/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

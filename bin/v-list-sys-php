@@ -5,6 +5,27 @@
 # example: v-list-sys-php
 #
 # List /etc/php/* version check if folder fpm is available
+#
+# code used in:
+#
+# bin/v-change-sys-php
+# bin/v-change-user-php-cli
+# bin/v-delete-web-php
+# bin/v-restart-service
+# bin/v-restart-web-backend
+# func/main.sh
+# func/upgrade.sh
+# install/upgrade/manual/migrate_multiphp.sh
+# install/upgrade/versions/1.00.0-190618.sh
+# install/upgrade/versions/1.5.5.sh
+# install/upgrade/versions/1.6.8.sh
+# web/add/webapp/index.php
+# web/edit/server/php5-fpm/index.php
+# web/edit/server/php-fpm/index.php
+# web/edit/server/php/index.php
+# web/edit/user/index.php
+# web/list/server/index.php
+# web/src/app/System/HestiaApp.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

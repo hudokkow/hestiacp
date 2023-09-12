@@ -5,6 +5,12 @@
 # example: v-change-mail-account-rate-limit admin mydomain.tld user01 100
 #
 # This function changes email account rate limit. Use system to use domain or "server" setting
+#
+# code used in:
+#
+# test/test.bats
+# web/add/mail/index.php
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

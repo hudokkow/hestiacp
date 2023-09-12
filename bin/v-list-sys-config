@@ -5,6 +5,20 @@
 # example: v-list-sys-config json
 #
 # This function for obtaining the list of system parameters.
+#
+# code used in:
+#
+# bin/v-add-database
+# func/remote.sh
+# install/common/api/sync-dns-cluster
+# src/deb/web-terminal/server.js
+# test/make-test-containers.php
+# web/api/index.php
+# web/edit/server/index.php
+# web/edit/server/whitelabel/index.php
+# web/inc/mail-wrapper.php
+# web/inc/main.php
+# web/login/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -6,6 +6,11 @@
 # example: v-list-sys-webmail
 #
 # List available webmail clients
+#
+# code used in:
+#
+# web/add/mail/index.php
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

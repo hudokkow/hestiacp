@@ -5,6 +5,10 @@
 # example: v-add-sys-web-terminal
 #
 # This function enables the web terminal.
+#
+# code used in:
+#
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

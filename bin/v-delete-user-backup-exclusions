@@ -5,6 +5,10 @@
 # example: v-delete-user-backup-exclusions admin
 #
 # This function for deleting backup exclusion
+#
+# code used in:
+#
+# web/delete/backup/exclusion/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

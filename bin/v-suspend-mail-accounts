@@ -5,6 +5,10 @@
 # example: v-suspend-mail-accounts admin example.com
 #
 # This function suspends all mail domain accounts.
+#
+# code used in:
+#
+# install/common/api/mail-accounts
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

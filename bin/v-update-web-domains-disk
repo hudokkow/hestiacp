@@ -5,6 +5,13 @@
 # example: v-update-web-domains-disk alice
 #
 # This function recalculates disk usage for all user webdomains.
+#
+# code used in:
+#
+# bin/v-add-user
+# bin/v-list-web-domain
+# bin/v-list-web-domains
+# func/rebuild.sh
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -5,6 +5,13 @@
 # example: v-update-user-quota alice
 #
 # The functions upates disk quota for specific user
+#
+# code used in:
+#
+# bin/v-add-sys-quota
+# bin/v-add-user
+# bin/v-change-user-package
+# bin/v-rebuild-user
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

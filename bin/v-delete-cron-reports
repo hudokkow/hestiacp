@@ -6,6 +6,11 @@
 #
 # This function for disabling reports on cron tasks and administrative
 # notifications.
+#
+# code used in:
+#
+# web/bulk/cron/index.php
+# web/delete/cron/reports/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

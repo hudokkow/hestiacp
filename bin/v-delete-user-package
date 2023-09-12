@@ -8,6 +8,13 @@
 #
 # If the package is in use, users will be updated to
 # use the default package.
+#
+# code used in:
+#
+# bin/v-change-user-package
+# test/test.bats
+# web/bulk/package/index.php
+# web/delete/package/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

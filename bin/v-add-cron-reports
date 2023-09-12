@@ -6,6 +6,11 @@
 #
 # This function for enabling reports on cron tasks and administrative
 # notifications.
+#
+# code used in:
+#
+# web/add/cron/reports/index.php
+# web/bulk/cron/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

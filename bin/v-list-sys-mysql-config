@@ -5,6 +5,12 @@
 # example: v-list-sys-mysql-config
 #
 # This function for obtaining the list of mysql config parameters.
+#
+# code used in:
+#
+# web/edit/server/mariadb/index.php
+# web/edit/server/mysqld/index.php
+# web/edit/server/mysql/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

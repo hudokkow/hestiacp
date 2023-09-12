@@ -5,6 +5,10 @@
 # example: v-delete-mail-domains admin
 #
 # This function for deleting all users mail domains.
+#
+# code used in:
+#
+# bin/v-delete-user
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

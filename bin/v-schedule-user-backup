@@ -5,6 +5,13 @@
 # example: v-schedule-user-backup admin
 #
 # This function for scheduling user backup creation.
+#
+# code used in:
+#
+# bin/v-backup-user
+# bin/v-download-backup
+# web/download/backup/index.php
+# web/schedule/backup/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

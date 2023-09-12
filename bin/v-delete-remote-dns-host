@@ -5,6 +5,12 @@
 # example: v-delete-remote-dns-host example.org
 #
 # This function for deleting the remote dns host from hestia configuration.
+#
+# code used in:
+#
+# bin/v-delete-remote-dns-domain
+# bin/v-delete-remote-dns-domains
+# test/api.bats
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

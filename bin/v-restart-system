@@ -5,6 +5,13 @@
 # example: v-restart-system yes
 #
 # This function restarts operating system.
+#
+# code used in:
+#
+# bin/v-log-action
+# install/upgrade/versions/1.1.0.sh
+# web/bulk/service/index.php
+# web/restart/system/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

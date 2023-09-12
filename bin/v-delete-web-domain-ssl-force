@@ -5,6 +5,14 @@
 # example: v-delete-web-domain-ssl-force admin domain.tld
 #
 # This function removes force SSL configurations.
+#
+# code used in:
+#
+# bin/v-add-letsencrypt-domain
+# bin/v-delete-web-domain
+# bin/v-delete-web-domain-ssl
+# func/rebuild.sh
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -5,6 +5,16 @@
 # example: v-unsuspend-database admin mydb
 #
 # This function for unsuspending database.
+#
+# code used in:
+#
+# bin/v-change-database-owner
+# bin/v-delete-user
+# bin/v-log-action
+# bin/v-unsuspend-user
+# test/test.bats
+# web/bulk/db/index.php
+# web/unsuspend/db/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

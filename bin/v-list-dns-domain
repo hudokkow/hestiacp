@@ -5,6 +5,19 @@
 # example: v-list-dns-domain alice wonderland.com
 #
 # This function of obtaining the list of dns domain parameters.
+#
+# code used in:
+#
+# bin/v-add-dns-domain
+# bin/v-add-letsencrypt-domain
+# bin/v-add-mail-domain-webmail
+# bin/v-add-remote-dns-host
+# bin/v-delete-letsencrypt-domain
+# bin/v-delete-mail-domain-webmail
+# test/restore.bats
+# web/edit/dns/index.php
+# web/edit/web/index.php
+# web/list/dns/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

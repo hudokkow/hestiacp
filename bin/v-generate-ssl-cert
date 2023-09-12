@@ -5,6 +5,15 @@
 # example: v-generate-ssl-cert example.com mail@yahoo.com USA California Monterey ACME.COM IT
 #
 # This function generates self signed SSL certificate and CSR request
+#
+# code used in:
+#
+# bin/v-add-letsencrypt-domain
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# test/config-tests.bats
+# test/test.bats
+# web/generate/ssl/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -1,6 +1,13 @@
 #!/bin/bash
 # info: add user login
 # options: USER IP STATUS [FINGERPRINT]
+#
+# code used in:
+#
+# web/delete/log/auth/index.php
+# web/login/index.php
+# web/reset2fa/index.php
+# web/reset/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

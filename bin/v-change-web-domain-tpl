@@ -6,6 +6,15 @@
 #
 # This function changes template of the web configuration file. The content
 # of webdomain directories remains untouched.
+#
+# code used in:
+#
+# install/upgrade/manual/migrate_apache.sh
+# install/upgrade/manual/migrate_multiphp.sh
+# install/upgrade/manual/migrate_ngnix_apache_nginx-php-fpm.sh
+# test/config-tests.bats
+# web/edit/web/index.php
+# web/src/app/System/HestiaApp.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

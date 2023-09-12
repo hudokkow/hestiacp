@@ -3,6 +3,10 @@
 # options: NONE
 #
 # This function adds a new cron job for Let's Encrypt.
+#
+# code used in:
+#
+# bin/v-schedule-letsencrypt-domain
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

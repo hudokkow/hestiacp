@@ -5,6 +5,10 @@
 # example: v-list-mail-domain-dkim admin maildomain.tld
 #
 # This function of obtaining domain dkim files.
+#
+# code used in:
+#
+# web/list/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

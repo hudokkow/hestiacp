@@ -6,6 +6,10 @@
 #
 # This function for deleting the database host from hestia configuration. It will
 # be deleted if there are no databases created on it only.
+#
+# code used in:
+#
+# Not used anywhere
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

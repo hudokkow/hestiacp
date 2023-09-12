@@ -5,6 +5,13 @@
 # example: v-add-firewall-chain CRM 5678 TCP
 #
 # This function adds new rule to system firewall
+#
+# code used in:
+#
+# bin/v-add-firewall-ban
+# bin/v-update-firewall
+# install/deb/fail2ban/action.d/hestia.conf
+# install/rpm/fail2ban/action.d/hestia.conf
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

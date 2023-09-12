@@ -6,6 +6,17 @@
 # example: v-add-letsencrypt-domain admin wonderland.com '' yes
 #
 # This function check and validates domain with Let's Encrypt
+#
+# code used in:
+#
+# bin/v-add-dns-record
+# bin/v-add-letsencrypt-host
+# bin/v-schedule-letsencrypt-domain
+# bin/v-update-letsencrypt-ssl
+# test/letsencrypt.bats
+# test/wildcard.bats
+# web/edit/mail/index.php
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

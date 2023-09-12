@@ -5,6 +5,11 @@
 # example: v-list-mail-account-autoreply admin example.com testing
 #
 # This function of obtaining mail account autoreply message.
+#
+# code used in:
+#
+# install/common/api/mail-accounts
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

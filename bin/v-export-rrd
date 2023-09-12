@@ -3,6 +3,10 @@
 # options: [CHART] [TIMESPAN]
 #
 # example: v-export-rrd chart format
+#
+# code used in:
+#
+# web/list/rrd/ajax.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

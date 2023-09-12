@@ -5,6 +5,11 @@
 # example: v-delete-sys-sftp-jail
 #
 # This function disables sftp jailed environment
+#
+# code used in:
+#
+# bin/v-add-sys-sftp-jail
+# install/upgrade/versions/1.9.0.sh
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

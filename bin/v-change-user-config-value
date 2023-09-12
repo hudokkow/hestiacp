@@ -5,6 +5,13 @@
 # example: v-change-user-config-value admin ROLE admin
 #
 # Changes key/value for specified user.
+#
+# code used in:
+#
+# bin/v-change-user-sort-order
+# test/test.bats
+# web/add/user/index.php
+# web/edit/user/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

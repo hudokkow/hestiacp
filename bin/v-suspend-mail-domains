@@ -5,6 +5,10 @@
 # example: v-suspend-mail-domains admin
 #
 # This function suspends all user's MAIL domains.
+#
+# code used in:
+#
+# bin/v-suspend-user
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

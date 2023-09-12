@@ -12,6 +12,11 @@
 #
 # This call changes the document root of a chosen web domain
 # to another available domain under the user context.
+#
+# code used in:
+#
+# test/test.bats
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

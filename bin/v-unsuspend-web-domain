@@ -5,6 +5,23 @@
 # example: v-unsuspend-web-domain admin acme.com
 #
 # This function of unsuspending the domain.
+#
+# code used in:
+#
+# bin/v-add-web-domain
+# bin/v-add-web-domain-backend
+# bin/v-change-domain-owner
+# bin/v-delete-user
+# bin/v-log-action
+# bin/v-rebuild-web-domain
+# bin/v-restart-proxy
+# bin/v-restart-web
+# bin/v-unsuspend-domain
+# bin/v-unsuspend-user
+# install/upgrade/manual/migrate_apache.sh
+# install/upgrade/manual/migrate_multiphp.sh
+# test/test.bats
+# web/bulk/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

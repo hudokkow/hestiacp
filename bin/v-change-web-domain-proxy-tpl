@@ -5,6 +5,11 @@
 # example: v-change-web-domain-proxy-tpl admin domain.tld hosting
 #
 # This function changes proxy template
+#
+# code used in:
+#
+# test/config-tests.bats
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

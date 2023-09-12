@@ -5,6 +5,11 @@
 # example: v-add-sys-smtp-relay srv.smtprelay.tld uname123 pass12345
 #
 # This function adds system wide smtp relay support.
+#
+# code used in:
+#
+# test/test.bats
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

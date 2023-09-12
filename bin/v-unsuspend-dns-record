@@ -5,6 +5,13 @@
 # example: v-unsuspend-dns-record admin example.com 33
 #
 # This function unsuspends a certain domain record.
+#
+# code used in:
+#
+# bin/v-add-remote-dns-record
+# bin/v-log-action
+# web/bulk/dns/index.php
+# web/unsuspend/dns/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

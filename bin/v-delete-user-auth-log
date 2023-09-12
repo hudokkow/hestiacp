@@ -2,6 +2,10 @@
 # info: Delete auth log file for user
 #
 # This function for deleting a users auth log file
+#
+# code used in:
+#
+# web/delete/log/auth/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

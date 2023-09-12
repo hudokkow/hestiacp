@@ -5,6 +5,12 @@
 # example: v-add-remote-dns-record bob acme.com 23
 #
 # This function synchronise dns domain with the remote server.
+#
+# code used in:
+#
+# bin/v-add-dns-record
+# bin/v-suspend-dns-record
+# bin/v-unsuspend-dns-record
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

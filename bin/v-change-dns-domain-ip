@@ -5,6 +5,13 @@
 # example: v-change-dns-domain-ip admin domain.com 123.212.111.222
 #
 # This function for changing the main ip of DNS zone.
+#
+# code used in:
+#
+# bin/v-add-remote-dns-domain
+# test/test.bats
+# web/edit/dns/index.php
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

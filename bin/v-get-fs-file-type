@@ -5,6 +5,10 @@
 # example: v-get-fs-file-type admin index.html
 #
 # This function shows file type
+#
+# code used in:
+#
+# Not used anywhere
 
 user=$1
 path=$2

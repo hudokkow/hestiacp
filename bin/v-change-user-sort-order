@@ -5,6 +5,12 @@
 # example: v-change-user-sort-order user date
 #
 # Changes web UI display sort order for specified user.
+#
+# code used in:
+#
+# bin/v-change-user-config-value
+# test/test.bats
+# web/edit/user/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

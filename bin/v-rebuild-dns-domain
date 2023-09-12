@@ -5,6 +5,29 @@
 # example: v-rebuild-dns-domain alice wonderland.com
 #
 # This function rebuilds DNS configuration files.
+#
+# code used in:
+#
+# bin/v-add-remote-dns-domain
+# bin/v-add-remote-dns-host
+# bin/v-add-remote-dns-record
+# bin/v-change-dns-domain-tpl
+# bin/v-change-domain-owner
+# bin/v-change-remote-dns-domain-soa
+# bin/v-change-remote-dns-domain-ttl
+# bin/v-change-sys-ip-nat
+# bin/v-delete-remote-dns-domains
+# bin/v-delete-remote-dns-record
+# bin/v-log-action
+# bin/v-rebuild-all
+# bin/v-sync-dns-cluster
+# bin/v-update-sys-ip
+# func/rebuild.sh
+# func/upgrade.sh
+# install/common/api/sync-dns-cluster
+# test/test.bats
+# web/bulk/dns/index.php
+# web/bulk/user/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

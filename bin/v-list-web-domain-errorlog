@@ -5,6 +5,10 @@
 # example: v-list-web-domain-errorlog admin acme.com
 #
 # This function of obtaining raw error web domain logs.
+#
+# code used in:
+#
+# Not used anywhere
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

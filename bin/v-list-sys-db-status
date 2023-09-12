@@ -5,6 +5,10 @@
 # v-list-sys-db-status
 #
 # This function lists db server status
+#
+# code used in:
+#
+# web/list/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

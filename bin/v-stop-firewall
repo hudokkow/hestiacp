@@ -5,6 +5,14 @@
 # example: v-stop-firewall
 #
 # This function stops iptables
+#
+# code used in:
+#
+# bin/v-delete-sys-firewall
+# bin/v-restart-service
+# bin/v-stop-service
+# install/upgrade/versions/1.5.11.sh
+# web/stop/service/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

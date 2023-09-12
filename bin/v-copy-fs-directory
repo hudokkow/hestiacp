@@ -5,6 +5,12 @@
 # example: v-copy-fs-directory alice /home/alice/dir1 /home/bob/dir2
 #
 # This function copies directory on the file system
+#
+# code used in:
+#
+# web/src/app/WebApp/Installers/DokuWiki/DokuWikiSetup.php
+# web/src/app/WebApp/Installers/MediaWiki/MediaWikiSetup.php
+# web/src/app/WebApp/Installers/Opencart/OpencartSetup.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

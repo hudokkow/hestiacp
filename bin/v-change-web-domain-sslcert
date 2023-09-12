@@ -6,6 +6,10 @@
 #
 # This function changes SSL domain certificate and the key. If ca file present
 # it will be replaced as well.
+#
+# code used in:
+#
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

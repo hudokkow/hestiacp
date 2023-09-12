@@ -3,6 +3,10 @@
 # options: NONE
 #
 # This function deletes hestia autoupdate cron job.
+#
+# code used in:
+#
+# web/delete/cron/autoupdate/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

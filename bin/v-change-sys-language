@@ -5,6 +5,11 @@
 # example: v-change-sys-language ru
 #
 # This function for changing system language.
+#
+# code used in:
+#
+# func/syshealth.sh
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

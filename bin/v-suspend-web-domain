@@ -7,6 +7,21 @@
 # This function for suspending the site's operation. After blocking it all
 # visitors will be redirected to a web page explaining the reason of suspend.
 # By blocking the site the content of all its directories remains untouched.
+#
+# code used in:
+#
+# bin/v-change-domain-owner
+# bin/v-log-action
+# bin/v-rebuild-web-domain
+# bin/v-restart-proxy
+# bin/v-restart-web
+# bin/v-suspend-domain
+# bin/v-suspend-user
+# install/upgrade/manual/migrate_apache.sh
+# install/upgrade/manual/migrate_multiphp.sh
+# test/test.bats
+# web/bulk/web/index.php
+# web/suspend/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

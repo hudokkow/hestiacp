@@ -5,6 +5,14 @@
 # example: v-restart-ftp
 #
 # This function tells ftp server to reread its configuration.
+#
+# code used in:
+#
+# bin/v-change-sys-ip-nat
+# bin/v-update-host-certificate
+# bin/v-update-sys-ip
+# func/upgrade.sh
+# install/upgrade/versions/1.7.0.sh
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -5,6 +5,10 @@
 # example: v-list-firewall-rule 2
 #
 # This function of obtaining firewall rule parameters.
+#
+# code used in:
+#
+# web/edit/firewall/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

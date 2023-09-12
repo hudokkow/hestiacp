@@ -5,6 +5,15 @@
 # example: v-purge-nginx-cache user domain.tld
 #
 # This function purges nginx cache.
+#
+# code used in:
+#
+# bin/v-add-access-key
+# bin/v-check-access-key
+# bin/v-log-action
+# install/common/api/purge-nginx-cache
+# web/bulk/web/index.php
+# web/delete/web/cache/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

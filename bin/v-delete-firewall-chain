@@ -5,6 +5,11 @@
 # example: v-delete-firewall-chain WEB
 #
 # This function adds new rule to system firewall
+#
+# code used in:
+#
+# install/deb/fail2ban/action.d/hestia.conf
+# install/rpm/fail2ban/action.d/hestia.conf
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

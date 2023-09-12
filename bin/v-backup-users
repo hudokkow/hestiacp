@@ -5,6 +5,13 @@
 # example: v-backup-users
 #
 # This function backups all system users.
+#
+# code used in:
+#
+# bin/v-add-cron-job
+# func/syshealth.sh
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

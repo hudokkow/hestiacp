@@ -6,6 +6,13 @@
 #
 # Revokes "temp user" access to a database and removes the user
 # To be used in combination with v-add-database-temp-user
+#
+# code used in:
+#
+# bin/v-add-database
+# bin/v-add-database-temp-user
+# install/common/api/phpmyadmin-sso
+# install/deb/phpmyadmin/hestia-sso.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -8,6 +8,10 @@
 # called without naming a certain user, all users will be removed. After
 # deleting all of them statistics will be accessible for view without an
 # authentication.
+#
+# code used in:
+#
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

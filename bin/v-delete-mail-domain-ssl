@@ -5,6 +5,12 @@
 # example: v-delete-mail-domain-ssl user demo.com
 #
 # This function delete ssl certificates.
+#
+# code used in:
+#
+# bin/v-delete-letsencrypt-domain
+# bin/v-delete-mail-domain
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

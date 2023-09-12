@@ -3,6 +3,11 @@
 # options: NONE
 #
 # This function for enabling restart cron tasks
+#
+# code used in:
+#
+# bin/v-add-remote-dns-host
+# install/common/api/sync-dns-cluster
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

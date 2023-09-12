@@ -7,6 +7,12 @@
 # This function creates an temporary database user mysql_sso_db_XXXXXXXX and a random password
 # The user has an limited validity and only granted access to the specific database
 # Returns json to be read SSO Script
+#
+# code used in:
+#
+# bin/v-delete-database-temp-user
+# install/common/api/phpmyadmin-sso
+# install/deb/phpmyadmin/hestia-sso.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

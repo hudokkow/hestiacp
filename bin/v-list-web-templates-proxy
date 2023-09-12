@@ -5,6 +5,13 @@
 # example: v-list-web-templates-proxy
 #
 # This function for obtaining the list of proxy templates available to a user.
+#
+# code used in:
+#
+# web/add/package/index.php
+# web/add/web/index.php
+# web/edit/package/index.php
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

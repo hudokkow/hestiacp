@@ -5,6 +5,10 @@
 # example: v-add-user-wp-cli user
 #
 # This function adds support for wp-cli to the user account
+#
+# code used in:
+#
+# web/src/app/System/HestiaApp.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

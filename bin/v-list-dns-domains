@@ -5,6 +5,15 @@
 # example: v-list-dns-domains admin
 #
 # This function for obtaining all DNS domains of a user.
+#
+# code used in:
+#
+# bin/v-add-letsencrypt-domain
+# bin/v-add-mail-domain-webmail
+# bin/v-add-remote-dns-host
+# bin/v-delete-letsencrypt-domain
+# bin/v-delete-mail-domain-webmail
+# web/list/dns/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

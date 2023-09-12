@@ -5,6 +5,12 @@
 # example: v-suspend-web-domains bob
 #
 # This function of suspending all user's sites.
+#
+# code used in:
+#
+# bin/v-restart-proxy
+# bin/v-restart-web
+# bin/v-suspend-user
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

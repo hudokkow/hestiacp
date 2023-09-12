@@ -5,6 +5,10 @@
 # example: v-list-firewall-ban json
 #
 # This function of obtaining the list of currently blocked ips.
+#
+# code used in:
+#
+# web/list/firewall/banlist/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

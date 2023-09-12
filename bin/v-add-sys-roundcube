@@ -3,6 +3,13 @@
 # options: [MODE]
 #
 # This function installs the Roundcube webmail client.
+#
+# code used in:
+#
+# func/upgrade.sh
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# install/upgrade/manual/migrate_roundcube.sh
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

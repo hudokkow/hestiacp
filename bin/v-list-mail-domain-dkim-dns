@@ -5,6 +5,10 @@
 # example: v-list-mail-domain-dkim-dns admin example.com
 #
 # This function of obtaining domain dkim dns records for proper setup.
+#
+# code used in:
+#
+# web/list/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

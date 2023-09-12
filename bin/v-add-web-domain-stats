@@ -8,6 +8,12 @@
 # the domain statistics use <http://domain.tld/vstats/> link. Access this page
 # is not protected by default. If you want to secure it with passwords you
 # should use v-add-web-domain_stat_auth script.
+#
+# code used in:
+#
+# test/test.bats
+# web/edit/web/index.php
+# web/templates/pages/edit_web.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

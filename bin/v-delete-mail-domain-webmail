@@ -6,6 +6,16 @@
 #
 # This function removes support for webmail from
 # a specified mail domain.
+#
+# code used in:
+#
+# bin/v-change-sys-webmail
+# bin/v-delete-dns-record
+# bin/v-delete-mail-domain
+# bin/v-rebuild-mail-domain
+# bin/v-suspend-mail-domain
+# web/add/mail/index.php
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

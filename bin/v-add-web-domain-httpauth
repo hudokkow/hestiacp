@@ -5,6 +5,10 @@
 # example: v-add-web-domain-httpauth admin acme.com user02 super_pass
 #
 # This function is used for securing web domain with http auth
+#
+# code used in:
+#
+# Not used anywhere
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

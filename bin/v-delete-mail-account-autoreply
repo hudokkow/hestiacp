@@ -5,6 +5,11 @@
 # example: v-delete-mail-account-autoreply admin mydomain.tld bob
 #
 # This function deletes an email accounts autoreply.
+#
+# code used in:
+#
+# install/common/api/mail-accounts
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

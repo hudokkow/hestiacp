@@ -5,6 +5,11 @@
 # example: v-schedule-letsencrypt-domain admin example.com www.example.com
 #
 # This function adds cronjob for letsencrypt ssl certificate installation
+#
+# code used in:
+#
+# bin/v-add-cron-letsencrypt-job
+# bin/v-add-letsencrypt-domain
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

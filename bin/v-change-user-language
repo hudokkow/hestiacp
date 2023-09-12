@@ -5,6 +5,15 @@
 # example: v-change-user-language admin en
 #
 # This function for changing language.
+#
+# code used in:
+#
+# bin/v-change-sys-language
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# test/test.bats
+# web/add/user/index.php
+# web/edit/user/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

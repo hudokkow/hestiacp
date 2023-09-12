@@ -5,6 +5,10 @@
 # example: v-change-mail-domain-catchall user01 mydomain.tld master@mydomain.tld
 #
 # This function changes mail domain catchall.
+#
+# code used in:
+#
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

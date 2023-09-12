@@ -5,6 +5,10 @@
 # example: v-list-sys-hestia-autoupdate
 #
 # This function for obtaining autoupdate settings.
+#
+# code used in:
+#
+# web/list/updates/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -5,6 +5,12 @@
 # example: v-list-sys-hestia-updates
 #
 # This function checks available updates for hestia packages.
+#
+# code used in:
+#
+# web/list/updates/index.php
+# web/locale/hestiacp.pot
+# web/locale/hst_scan_i18n.sh
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

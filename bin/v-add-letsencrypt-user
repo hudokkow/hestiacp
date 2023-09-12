@@ -5,6 +5,10 @@
 # example: v-add-letsencrypt-user bob
 #
 # This function creates and register LetsEncrypt account
+#
+# code used in:
+#
+# bin/v-add-letsencrypt-domain
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

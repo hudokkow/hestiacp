@@ -3,6 +3,11 @@
 # options: USER
 #
 # This function for unsuspending all user's databases.
+#
+# code used in:
+#
+# bin/v-delete-user
+# bin/v-unsuspend-user
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

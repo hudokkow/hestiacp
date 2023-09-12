@@ -6,6 +6,19 @@
 #
 # This function for obtaining the list of system users without
 # detailed information.
+#
+# code used in:
+#
+# install/upgrade/manual/install_awstats_geoip2.sh
+# install/upgrade/manual/install_awstats_geoip.sh
+# install/upgrade/manual/migrate_apache.sh
+# install/upgrade/manual/migrate_multiphp.sh
+# install/upgrade/versions/1.1.0.sh
+# install/upgrade/versions/1.2.0.sh
+# install/upgrade/versions/1.3.0.sh
+# web/add/ip/index.php
+# web/edit/ip/index.php
+# web/list/stats/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

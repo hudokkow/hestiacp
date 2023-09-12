@@ -5,6 +5,22 @@
 # example: v-list-web-domains alice
 #
 # This function to obtain the list of all user web domains.
+#
+# code used in:
+#
+# bin/v-generate-debug-report
+# bin/v-rebuild-web-domains
+# bin/v-update-web-domains-disk
+# install/common/api/purge-nginx-cache
+# install/upgrade/manual/migrate_apache.sh
+# install/upgrade/manual/migrate_multiphp.sh
+# install/upgrade/manual/migrate_ngnix_apache_nginx-php-fpm.sh
+# install/upgrade/versions/1.00.0-190618.sh
+# install/upgrade/versions/1.1.0.sh
+# web/add/web/index.php
+# web/edit/web/index.php
+# web/inc/main.php
+# web/list/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

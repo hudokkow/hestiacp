@@ -5,6 +5,12 @@
 # example: v-list-mail-domain-ssl user acme.com json
 #
 # This function of obtaining domain ssl files.
+#
+# code used in:
+#
+# func/domain.sh
+# test/test.bats
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

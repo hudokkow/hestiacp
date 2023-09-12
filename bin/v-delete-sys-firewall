@@ -5,6 +5,13 @@
 # example: v-delete-sys-firewall
 #
 # This function disables firewall support
+#
+# code used in:
+#
+# bin/v-change-sys-config-value
+# install/upgrade/versions/1.4.13.sh
+# install/upgrade/versions/1.6.12.sh
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

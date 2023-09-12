@@ -5,6 +5,42 @@
 # example: v-list-users
 #
 # This function to obtain the list of all system users.
+#
+# code used in:
+#
+# bin/v-add-remote-dns-host
+# bin/v-add-sys-ip
+# bin/v-add-sys-quota
+# bin/v-backup-users
+# bin/v-change-sys-ip-nat
+# bin/v-change-sys-ip-owner
+# bin/v-change-sys-language
+# bin/v-change-sys-php
+# bin/v-change-sys-webmail
+# bin/v-delete-sys-ip
+# bin/v-list-sys-users
+# bin/v-rebuild-users
+# bin/v-rename-user-package
+# bin/v-search-object
+# bin/v-update-letsencrypt-ssl
+# bin/v-update-mail-templates
+# bin/v-update-sys-ip
+# bin/v-update-user-counters
+# bin/v-update-user-package
+# bin/v-update-user-stats
+# bin/v-update-web-templates
+# func/upgrade.sh
+# install/common/api/billing
+# install/common/api/sync-dns-cluster
+# install/upgrade/manual/migrate_ngnix_apache_nginx-php-fpm.sh
+# install/upgrade/versions/1.00.0-190618.sh
+# install/upgrade/versions/1.1.0.sh
+# install/upgrade/versions/1.4.0.sh
+# test/api.bats
+# test/checks.bats
+# web/inc/main.php
+# web/list/stats/index.php
+# web/list/user/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

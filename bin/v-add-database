@@ -11,6 +11,17 @@
 # the first host in the list. "Random" will chose the host by a chance.
 # "Weight" will distribute new database through hosts evenly. Algorithm and
 # types of supported databases is designated in the main configuration file.
+#
+# code used in:
+#
+# bin/v-delete-database-temp-user
+# install/common/api/phpmyadmin-sso
+# install/deb/phpmyadmin/hestia-sso.php
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# test/test.bats
+# web/add/db/index.php
+# web/src/app/System/HestiaApp.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

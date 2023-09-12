@@ -5,6 +5,10 @@
 # example: v-search-user-object admin example.com json
 #
 # This function that allows to find user objects.
+#
+# code used in:
+#
+# web/search/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

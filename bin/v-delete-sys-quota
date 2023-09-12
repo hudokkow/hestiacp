@@ -5,6 +5,11 @@
 # example: v-delete-sys-quota
 #
 # This function disables filesystem quota on /home partition
+#
+# code used in:
+#
+# bin/v-change-sys-config-value
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

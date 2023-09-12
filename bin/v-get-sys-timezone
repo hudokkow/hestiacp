@@ -3,6 +3,10 @@
 # options: [FORMAT]
 #
 # This function to get system timezone
+#
+# code used in:
+#
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

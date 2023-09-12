@@ -5,6 +5,19 @@
 # example: v-delete-sys-pma-sso
 #
 # Disables support for SSO to phpMyAdmin
+#
+# code used in:
+#
+# bin/v-add-sys-pma-sso
+# bin/v-change-sys-config-value
+# bin/v-delete-access-key
+# install/upgrade/manual/migrate_phpmyadmin.sh
+# install/upgrade/versions/1.4.13.sh
+# install/upgrade/versions/1.4.3.sh
+# install/upgrade/versions/1.4.4.sh
+# install/upgrade/versions/1.6.0.sh
+# install/upgrade/versions/1.7.0.sh
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -5,6 +5,11 @@
 # example: v-delete-mail-account-forward admin acme.com tony bob@acme.com
 #
 # This function deletes an email accounts forwarding address.
+#
+# code used in:
+#
+# install/common/api/mail-accounts
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

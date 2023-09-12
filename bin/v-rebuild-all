@@ -10,6 +10,10 @@
 # - Databases
 # - Cron Jobs
 # - User account configuration
+#
+# code used in:
+#
+# web/bulk/user/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

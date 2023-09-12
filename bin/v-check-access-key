@@ -8,6 +8,10 @@
 # * Checks if the secret belongs to the key;
 # * Checks if the key user is suspended;
 # * Checks if the key has permission to run the command.
+#
+# code used in:
+#
+# web/api/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

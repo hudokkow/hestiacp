@@ -6,6 +6,12 @@
 #
 # This function enables filesystem quota on /home partition
 # Some kernels do require additional packages to be installed first
+#
+# code used in:
+#
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                 Variable & Function                      #

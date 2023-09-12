@@ -5,6 +5,20 @@
 # example: v-list-sys-ips
 #
 # This function for obtaining the list of system IP addresses.
+#
+# code used in:
+#
+# bin/v-change-remote-dns-domain-exp
+# bin/v-change-remote-dns-domain-soa
+# bin/v-change-remote-dns-domain-ttl
+# install/upgrade/versions/1.00.0-190618.sh
+# install/upgrade/versions/1.3.1.sh
+# install/upgrade/versions/1.4.0.sh
+# install/upgrade/versions/1.5.0.sh
+# src/deb/web-terminal/server.js
+# web/list/ip/index.php
+# web/list/web/index.php
+# web/reset/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -5,6 +5,12 @@
 # example: v-suspend-firewall-rule 7
 #
 # This function suspends a certain firewall rule.
+#
+# code used in:
+#
+# bin/v-log-action
+# web/bulk/firewall/index.php
+# web/suspend/firewall/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

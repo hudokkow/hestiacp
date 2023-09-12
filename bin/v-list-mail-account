@@ -5,6 +5,16 @@
 # example: v-list-mail-account admin domain.tld tester
 #
 # This function of obtaining the list of account parameters.
+#
+# code used in:
+#
+# bin/v-add-access-key
+# bin/v-update-mail-domain-disk
+# bin/v-update-mail-domains-disk
+# install/common/api/mail-accounts
+# test/restore.bats
+# web/edit/mail/index.php
+# web/list/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

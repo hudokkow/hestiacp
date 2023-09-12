@@ -5,6 +5,69 @@
 # example: v-list-user admin
 #
 # This function to obtain user parameters.
+#
+# code used in:
+#
+# bin/v-acknowledge-user-notification
+# bin/v-add-remote-dns-host
+# bin/v-add-sys-ip
+# bin/v-add-sys-quota
+# bin/v-add-user
+# bin/v-backup-users
+# bin/v-change-sys-ip-nat
+# bin/v-change-sys-ip-owner
+# bin/v-change-sys-language
+# bin/v-change-sys-php
+# bin/v-change-sys-webmail
+# bin/v-delete-sys-ip
+# bin/v-list-sys-users
+# bin/v-rebuild-users
+# bin/v-rename-user-package
+# bin/v-search-object
+# bin/v-update-letsencrypt-ssl
+# bin/v-update-mail-templates
+# bin/v-update-sys-ip
+# bin/v-update-user-counters
+# bin/v-update-user-package
+# bin/v-update-user-stats
+# bin/v-update-web-templates
+# func/main.sh
+# func/remote.sh
+# func/upgrade.sh
+# install/common/api/billing
+# install/common/api/sync-dns-cluster
+# install/deb/filemanager/filegator/backend/Services/Auth/Adapters/HestiaAuth.php
+# install/upgrade/manual/migrate_ngnix_apache_nginx-php-fpm.sh
+# install/upgrade/versions/1.00.0-190618.sh
+# install/upgrade/versions/1.1.0.sh
+# install/upgrade/versions/1.4.0.sh
+# test/api.bats
+# test/checks.bats
+# test/test.bats
+# web/add/dns/index.php
+# web/add/key/index.php
+# web/add/user/index.php
+# web/add/web/index.php
+# web/edit/backup/exclusions/index.php
+# web/edit/dns/index.php
+# web/edit/package/index.php
+# web/edit/user/index.php
+# web/edit/web/index.php
+# web/inc/main.php
+# web/list/backup/exclusions/index.php
+# web/list/backup/index.php
+# web/list/key/index.php
+# web/list/log/auth/index.php
+# web/list/log/index.php
+# web/list/mail/index.php
+# web/list/notifications/index.php
+# web/list/package/index.php
+# web/list/stats/index.php
+# web/list/user/index.php
+# web/login/index.php
+# web/reset2fa/index.php
+# web/reset/index.php
+# web/src/app/System/HestiaApp.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

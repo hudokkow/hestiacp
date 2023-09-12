@@ -5,6 +5,12 @@
 # example: v-add-mail-account-forward admin acme.com alice bob
 #
 # This function add new email account.
+#
+# code used in:
+#
+# install/common/api/mail-accounts
+# web/add/mail/index.php
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -5,6 +5,12 @@
 # example: v-check-user-hash admin CN5JY6SMEyNGnyCuvmK5z4r7gtHAC4mRZ...
 #
 # This function verifies user hash
+#
+# code used in:
+#
+# test/test.bats
+# web/api/index.php
+# web/login/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

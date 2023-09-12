@@ -5,6 +5,13 @@
 # example: v-start-service mysql
 #
 # This function starts system service.
+#
+# code used in:
+#
+# bin/v-add-sys-web-terminal
+# bin/v-log-action
+# web/bulk/service/index.php
+# web/start/service/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

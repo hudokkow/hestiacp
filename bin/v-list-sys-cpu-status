@@ -5,6 +5,10 @@
 # example: v-list-sys-cpu-status
 #
 # This function lists cpu information
+#
+# code used in:
+#
+# web/list/server/index.php
 
 #----------------------------------------------------------#
 #                       Action                             #

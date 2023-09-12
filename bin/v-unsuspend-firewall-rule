@@ -5,6 +5,12 @@
 # example: v-unsuspend-firewall-rule 7
 #
 # This function unsuspends a certain firewall rule.
+#
+# code used in:
+#
+# bin/v-log-action
+# web/bulk/firewall/index.php
+# web/unsuspend/firewall/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

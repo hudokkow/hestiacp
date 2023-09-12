@@ -6,6 +6,10 @@
 #
 # This function is used for changing existing job. It fully replace job
 # parameters with new one but with same id.
+#
+# code used in:
+#
+# web/edit/cron/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

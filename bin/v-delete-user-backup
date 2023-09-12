@@ -5,6 +5,13 @@
 # example: v-delete-user-backup admin admin.2012-12-21_00-10-00.tar
 #
 # This function deletes user backup.
+#
+# code used in:
+#
+# test/test.bats
+# web/bulk/backup/index.php
+# web/delete/backup/exclusion/index.php
+# web/delete/backup/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

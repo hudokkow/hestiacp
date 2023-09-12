@@ -5,6 +5,11 @@
 # example: v-unsuspend-cron-jobs admin no
 #
 # This function unsuspends all suspended cron jobs.
+#
+# code used in:
+#
+# bin/v-restart-cron
+# bin/v-unsuspend-user
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

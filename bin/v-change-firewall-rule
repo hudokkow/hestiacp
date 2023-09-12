@@ -6,6 +6,10 @@
 #
 # This function is used for changing existing firewall rule.
 # It fully replace rule with new one but keeps same id.
+#
+# code used in:
+#
+# web/edit/firewall/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

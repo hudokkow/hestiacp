@@ -5,6 +5,11 @@
 # example: v-change-mail-account-quota admin mydomain.tld user01 unlimited
 #
 # This function changes email account disk quota.
+#
+# code used in:
+#
+# install/common/api/mail-accounts
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

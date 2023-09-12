@@ -5,6 +5,13 @@
 # example: v-suspend-mail-account admin acme.com bob
 #
 # This function suspends mail account.
+#
+# code used in:
+#
+# bin/v-log-action
+# install/common/api/mail-accounts
+# web/bulk/mail/index.php
+# web/suspend/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

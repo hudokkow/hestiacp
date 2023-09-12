@@ -5,6 +5,10 @@
 # example: v-change-web-domain-dirlist user demo.com on
 #
 # This function is used for changing the directory list mode.
+#
+# code used in:
+#
+# Not used anywhere
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

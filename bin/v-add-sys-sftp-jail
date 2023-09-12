@@ -5,6 +5,16 @@
 # example: v-add-sys-sftp-jail yes
 #
 # This function enables sftp jailed environment.
+#
+# code used in:
+#
+# bin/v-delete-sys-sftp-jail
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# install/upgrade/versions/1.00.0-190618.sh
+# install/upgrade/versions/1.1.0.sh
+# install/upgrade/versions/1.6.0.sh
+# install/upgrade/versions/1.9.0.sh
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

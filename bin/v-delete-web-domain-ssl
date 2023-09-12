@@ -5,6 +5,14 @@
 # example: v-delete-web-domain-ssl admin acme.com
 #
 # This function disable https support and deletes SSL certificates.
+#
+# code used in:
+#
+# bin/v-add-letsencrypt-domain
+# bin/v-delete-letsencrypt-domain
+# bin/v-delete-web-domain
+# func/rebuild.sh
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

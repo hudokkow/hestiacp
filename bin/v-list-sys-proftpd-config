@@ -5,6 +5,10 @@
 # example: v-list-sys-proftpd-config
 #
 # This function for obtaining the list of proftpd config parameters.
+#
+# code used in:
+#
+# web/edit/server/proftpd/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

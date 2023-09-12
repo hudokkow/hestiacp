@@ -4,6 +4,13 @@
 #
 # This function adds a cronjob for hestia automatic updates
 # that can be downloaded from apt or git.
+#
+# code used in:
+#
+# bin/v-update-sys-hestia-git
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# web/add/cron/autoupdate/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

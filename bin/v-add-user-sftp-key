@@ -3,6 +3,10 @@
 # options: USER [TTL]
 #
 # This function creates and updates SSH keys for used with the File Manager.
+#
+# code used in:
+#
+# install/deb/filemanager/filegator/configuration.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

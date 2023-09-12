@@ -5,6 +5,10 @@
 # example: v-delete-databases admin
 #
 # This function deletes all user databases.
+#
+# code used in:
+#
+# bin/v-delete-user
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

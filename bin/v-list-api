@@ -3,6 +3,11 @@
 # options: API [FORMAT]
 #
 # example: v-list-api mail-accounts json
+#
+# code used in:
+#
+# web/add/access-key/index.php
+# web/list/access-key/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

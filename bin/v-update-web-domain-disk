@@ -5,6 +5,10 @@
 # example: v-update-web-domain-disk alice wonderland.com
 #
 # This function recalculates disk usage for specific webdomain.
+#
+# code used in:
+#
+# Not used anywhere
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

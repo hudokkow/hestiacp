@@ -5,6 +5,10 @@
 # example: v-change-web-domain-name alice wonderland.com lookinglass.com yes
 #
 # This function is used for changing the domain name.
+#
+# code used in:
+#
+# Not used anywhere
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

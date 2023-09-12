@@ -5,6 +5,13 @@
 # example: v-add-firewall-ban 37.120.129.20 MAIL
 #
 # This function adds new blocking rule to system firewall
+#
+# code used in:
+#
+# install/deb/fail2ban/action.d/hestia.conf
+# install/rpm/fail2ban/action.d/hestia.conf
+# test/test.bats
+# web/add/firewall/banlist/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

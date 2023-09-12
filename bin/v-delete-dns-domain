@@ -6,6 +6,19 @@
 #
 # This function for deleting DNS domain. By deleting it all records will also be
 # deleted.
+#
+# code used in:
+#
+# bin/v-delete-dns-on-web-alias
+# bin/v-delete-domain
+# bin/v-delete-remote-dns-domain
+# bin/v-delete-remote-dns-domains
+# bin/v-delete-user
+# bin/v-sync-dns-cluster
+# install/common/api/sync-dns-cluster
+# test/test.bats
+# web/bulk/dns/index.php
+# web/delete/dns/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

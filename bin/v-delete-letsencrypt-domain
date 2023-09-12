@@ -5,6 +5,13 @@
 # example: v-delete-letsencrypt-domain admin acme.com yes
 #
 # This function turns off letsencrypt SSL support for a domain.
+#
+# code used in:
+#
+# bin/v-delete-dns-record
+# test/letsencrypt.bats
+# web/edit/mail/index.php
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

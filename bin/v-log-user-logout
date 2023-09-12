@@ -1,6 +1,12 @@
 #!/bin/bash
 # info: Log User logout event
 # options: USER FINGERPRINT
+#
+# code used in:
+#
+# install/deb/filemanager/filegator/configuration.php
+# web/inc/main.php
+# web/logout/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

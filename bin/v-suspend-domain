@@ -5,6 +5,13 @@
 # example: v-suspend-domain admin example.com
 #
 # This function suspends web/dns/mail domain.
+#
+# code used in:
+#
+# bin/v-restart-dns
+# bin/v-restart-proxy
+# bin/v-restart-web
+# bin/v-suspend-dns-domain
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

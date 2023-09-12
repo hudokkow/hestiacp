@@ -6,6 +6,11 @@
 #
 # Function check if $user/.ssh/authorized_keys exists and create it.
 # After that it append the new key(s)
+#
+# code used in:
+#
+# bin/v-add-fs-file
+# web/add/key/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

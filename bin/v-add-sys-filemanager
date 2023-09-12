@@ -4,6 +4,16 @@
 #
 # This function installs the File Manager on the server
 # for access through the Web interface.
+#
+# code used in:
+#
+# func/syshealth.sh
+# func/upgrade.sh
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# install/upgrade/versions/1.2.0.sh
+# install/upgrade/versions/1.7.0.sh
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

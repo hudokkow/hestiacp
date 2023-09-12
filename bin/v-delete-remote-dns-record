@@ -5,6 +5,10 @@
 # example: v-delete-remote-dns-record user07 acme.com 44
 #
 # This function synchronise dns with the remote server.
+#
+# code used in:
+#
+# bin/v-delete-dns-record
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

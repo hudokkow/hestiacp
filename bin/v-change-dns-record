@@ -5,6 +5,14 @@
 # example: v-change-dns-record admin domain.ua 42 192.18.22.43
 #
 # This function for changing DNS record.
+#
+# code used in:
+#
+# bin/v-add-remote-dns-domain
+# bin/v-change-dns-domain-soa
+# install/common/api/update-dns-records
+# test/test.bats
+# web/edit/dns/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

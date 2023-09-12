@@ -6,6 +6,11 @@
 #
 # This function allows configuring a SMTP account for the server to use
 # for logging, notification and warn emails etc.
+#
+# code used in:
+#
+# test/test.bats
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

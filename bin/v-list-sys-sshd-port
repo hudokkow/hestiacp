@@ -5,6 +5,12 @@
 # example: v-list-sys-sshd-port
 #
 # This function for obtainings the port of sshd listens to
+#
+# code used in:
+#
+# bin/v-add-firewall-chain
+# bin/v-update-firewall
+# install/deb/filemanager/filegator/configuration.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

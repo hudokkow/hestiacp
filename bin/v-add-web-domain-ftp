@@ -5,6 +5,13 @@
 # example: v-add-web-domain-ftp alice wonderland.com alice_ftp p4$$vvOrD
 #
 # This function creates additional ftp account for web domain.
+#
+# code used in:
+#
+# bin/v-add-user
+# bin/v-add-user-sftp-jail
+# func/rebuild.sh
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

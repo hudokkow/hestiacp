@@ -5,6 +5,13 @@
 # example: v-change-sys-port 5678
 #
 # This function for changing the system backend port in NGINX configuration.
+#
+# code used in:
+#
+# bin/v-change-sys-config-value
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# src/deb/nginx/postinst
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

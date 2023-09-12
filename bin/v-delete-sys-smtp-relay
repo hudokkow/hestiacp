@@ -5,6 +5,11 @@
 # example: v-delete-sys-smtp-relay
 #
 # This function disables system wide smtp relay support.
+#
+# code used in:
+#
+# test/test.bats
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

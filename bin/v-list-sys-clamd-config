@@ -5,6 +5,11 @@
 # example: v-list-sys-clamd-config
 #
 # This function for obtaining the list of clamd config parameters.
+#
+# code used in:
+#
+# bin/v-change-sys-service-config
+# web/edit/server/clamav-daemon/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

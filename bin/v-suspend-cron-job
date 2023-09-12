@@ -5,6 +5,15 @@
 # example: v-suspend-cron-job admin 5 yes
 #
 # This function suspends a certain job of the cron scheduler.
+#
+# code used in:
+#
+# bin/v-log-action
+# bin/v-restart-cron
+# bin/v-suspend-user
+# test/test.bats
+# web/bulk/cron/index.php
+# web/suspend/cron/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

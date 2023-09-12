@@ -5,6 +5,13 @@
 # example: v-search-domain-owner acme.com
 #
 # This function that allows to find user objects.
+#
+# code used in:
+#
+# bin/v-add-letsencrypt-host
+# bin/v-change-domain-owner
+# install/upgrade/versions/1.5.6.sh
+# web/reset/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

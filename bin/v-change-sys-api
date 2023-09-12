@@ -11,6 +11,14 @@
 #          # Disable API
 #
 # Enabled / Disable API
+#
+# code used in:
+#
+# bin/v-change-sys-demo-mode
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# install/upgrade/versions/1.4.0.sh
+# web/edit/server/index.php
 
 status=$1
 version=$2

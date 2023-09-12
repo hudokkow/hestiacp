@@ -5,6 +5,18 @@
 # example: v-unsuspend-mail-domain user02 acme.com
 #
 # This function unsuspends mail domain.
+#
+# code used in:
+#
+# bin/v-add-mail-domain
+# bin/v-add-mail-domain-webmail
+# bin/v-change-domain-owner
+# bin/v-delete-user
+# bin/v-log-action
+# bin/v-unsuspend-domain
+# bin/v-unsuspend-user
+# web/bulk/mail/index.php
+# web/unsuspend/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

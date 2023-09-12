@@ -5,6 +5,10 @@
 # example: v-list-sys-memory-status
 #
 # This function lists virtual memory information
+#
+# code used in:
+#
+# web/list/server/index.php
 
 #----------------------------------------------------------#
 #                       Action                             #

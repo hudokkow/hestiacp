@@ -5,6 +5,10 @@
 # example: v-change-user-template admin WEB wordpress
 #
 # This function changes default user web template.
+#
+# code used in:
+#
+# Not used anywhere
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

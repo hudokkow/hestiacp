@@ -3,6 +3,10 @@
 # options: [FORMAT]
 #
 # This function for listing overall user statistics
+#
+# code used in:
+#
+# web/list/stats/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

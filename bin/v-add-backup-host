@@ -6,6 +6,10 @@
 #          v-add-backup-host b2 bucketName keyID applicationKey
 #
 # Add a new remote backup location. Currently SFTP, FTP and Backblaze are supported
+#
+# code used in:
+#
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

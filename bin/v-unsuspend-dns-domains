@@ -5,6 +5,11 @@
 # example: v-unsuspend-dns-domains alice
 #
 # This function unsuspends all user's DNS domains.
+#
+# code used in:
+#
+# bin/v-delete-user
+# bin/v-unsuspend-user
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

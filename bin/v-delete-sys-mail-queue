@@ -6,6 +6,10 @@
 #
 # This function checks for messages stuck in the exim mail queue
 # and prompts the user to clear the queue if desired.
+#
+# code used in:
+#
+# Not used anywhere
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

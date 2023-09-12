@@ -5,6 +5,12 @@
 # example: v-delete-access-key mykey
 #
 # This function removes a key from in $HESTIA/data/access-keys/
+#
+# code used in:
+#
+# bin/v-delete-sys-pma-sso
+# web/bulk/access-key/index.php
+# web/delete/access-key/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -5,6 +5,10 @@
 # example: v-update-sys-rrd-mem
 #
 # This function is for updating memory rrd database and graphic.
+#
+# code used in:
+#
+# bin/v-update-sys-rrd
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

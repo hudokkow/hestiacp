@@ -5,6 +5,10 @@
 # example: v-list-backup-host local
 #
 # This function for obtaining the list of backup host parameters.
+#
+# code used in:
+#
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

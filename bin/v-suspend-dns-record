@@ -5,6 +5,13 @@
 # example: v-suspend-dns-record alice wonderland.com 42 yes
 #
 # This function suspends a certain domain record.
+#
+# code used in:
+#
+# bin/v-add-remote-dns-record
+# bin/v-log-action
+# web/bulk/dns/index.php
+# web/suspend/dns/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

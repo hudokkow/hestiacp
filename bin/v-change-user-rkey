@@ -3,6 +3,10 @@
 # options: USER [HASH]
 #
 # This function changes user's RKEY value thats has been used for security value to be used forgot password function only.
+#
+# code used in:
+#
+# web/reset/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

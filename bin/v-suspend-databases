@@ -5,6 +5,10 @@
 # example: v-suspend-databases admin
 #
 # This function for suspending of all databases of a single user.
+#
+# code used in:
+#
+# bin/v-suspend-user
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -5,6 +5,14 @@
 # example: v-change-user-role user administrator
 #
 # Give/revoke user administrator rights to manage all accounts as admin
+#
+# code used in:
+#
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# install/upgrade/versions/1.3.4.sh
+# web/add/user/index.php
+# web/edit/user/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

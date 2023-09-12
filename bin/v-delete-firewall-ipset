@@ -5,6 +5,12 @@
 # example: v-delete-firewall-ipset country-nl
 #
 # This function removes ipset from system and from hestia
+#
+# code used in:
+#
+# test/test.bats
+# web/bulk/firewall/ipset/index.php
+# web/delete/firewall/ipset/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

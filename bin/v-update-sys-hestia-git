@@ -9,6 +9,12 @@
 #          # install-auto: installs package and schedules automatic updates from Git
 #
 # Downloads and compiles/installs packages from GitHub repositories
+#
+# code used in:
+#
+# bin/v-add-cron-hestia-autoupdate
+# bin/v-change-sys-config-value
+# bin/v-delete-cron-hestia-autoupdate
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

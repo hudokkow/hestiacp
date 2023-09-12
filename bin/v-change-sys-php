@@ -1,6 +1,10 @@
 #!/bin/bash
 # info: Change default php version server wide
 # options: VERSION
+#
+# code used in:
+#
+# web/edit/server/index.php
 
 # example: v-change-sys-php 8.0
 

@@ -5,6 +5,15 @@
 # example: v-list-mail-domains admin
 #
 # This function of obtaining the list of all user domains.
+#
+# code used in:
+#
+# bin/v-change-sys-webmail
+# bin/v-import-cpanel
+# bin/v-update-mail-domains-disk
+# install/common/api/mail-accounts
+# install/upgrade/versions/1.4.0.sh
+# web/list/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -3,6 +3,13 @@
 # options: USER DOMAIN DATA
 #
 # This function inserts raw dns record to the domain conf
+#
+# code used in:
+#
+# bin/v-add-remote-dns-domain
+# bin/v-add-remote-dns-record
+# bin/v-sync-dns-cluster
+# install/common/api/sync-dns-cluster
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

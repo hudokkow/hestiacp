@@ -5,6 +5,12 @@
 # example: v-get-user-value admin FNAME
 #
 # This function for obtaining certain user's parameters.
+#
+# code used in:
+#
+# bin/v-rename-user-package
+# func/remote.sh
+# web/reset/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

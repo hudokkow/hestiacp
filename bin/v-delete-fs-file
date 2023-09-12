@@ -5,6 +5,11 @@
 # example: v-delete-fs-file admin readme.txt
 #
 # This function deletes file on the file system
+#
+# code used in:
+#
+# web/src/app/WebApp/Installers/BaseSetup.php
+# web/src/app/WebApp/Installers/DokuWiki/DokuWikiSetup.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

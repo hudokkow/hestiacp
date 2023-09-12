@@ -5,6 +5,38 @@
 # example: v-update-firewall
 #
 # This function updates iptables rules
+#
+# code used in:
+#
+# bin/v-add-firewall-chain
+# bin/v-add-firewall-ipset
+# bin/v-add-firewall-rule
+# bin/v-add-sys-firewall
+# bin/v-add-sys-ip
+# bin/v-change-firewall-rule
+# bin/v-change-sys-ip-nat
+# bin/v-delete-firewall-rule
+# bin/v-delete-sys-ip
+# bin/v-list-firewall
+# bin/v-list-firewall-ipset
+# bin/v-list-sys-sshd-port
+# bin/v-restart-service
+# bin/v-start-service
+# bin/v-stop-firewall
+# bin/v-suspend-firewall-rule
+# bin/v-unsuspend-firewall-rule
+# bin/v-update-sys-ip
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# install/upgrade/versions/1.2.0.sh
+# install/upgrade/versions/1.4.0.sh
+# install/upgrade/versions/1.4.11.sh
+# install/upgrade/versions/1.4.2.sh
+# install/upgrade/versions/1.4.3.sh
+# install/upgrade/versions/1.5.11.sh
+# install/upgrade/versions/1.6.14.sh
+# web/restart/service/index.php
+# web/start/service/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

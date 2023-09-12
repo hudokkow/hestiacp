@@ -7,6 +7,11 @@
 # and prevent modification of objects in the control panel.
 # It will also disable virtual hosts for Apache and NGINX
 # for domains which have been created.
+#
+# code used in:
+#
+# bin/v-change-sys-api
+# bin/v-change-sys-config-value
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

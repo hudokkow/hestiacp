@@ -5,6 +5,11 @@
 # example: v-delete-sys-web-terminal
 #
 # This function disables the web terminal.
+#
+# code used in:
+#
+# bin/v-change-sys-config-value
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

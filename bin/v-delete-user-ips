@@ -5,6 +5,10 @@
 # example: v-delete-user-ips admin
 #
 # This function deletes all user's ip addresses.
+#
+# code used in:
+#
+# bin/v-delete-user
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

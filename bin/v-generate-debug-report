@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# code used in:
+#
+# bin/v-add-user
+# bin/v-change-sys-config-value
 
 # Includes
 # shellcheck source=/etc/hestiacp/hestia.conf

@@ -5,6 +5,12 @@
 # example: v-delete-user-sftp-jail whistler
 #
 # This function disables sftp jailed environment for USER
+#
+# code used in:
+#
+# bin/v-change-user-shell
+# bin/v-delete-user
+# bin/v-delete-web-domain-ftp
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

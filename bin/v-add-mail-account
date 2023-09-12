@@ -5,6 +5,14 @@
 # example: v-add-mail-account user example.com john P4$$vvOrD
 #
 # This function add new email account.
+#
+# code used in:
+#
+# bin/v-import-cpanel
+# install/common/api/mail-accounts
+# test/test.bats
+# web/add/mail/index.php
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -5,6 +5,15 @@
 # example: v-suspend-database admin admin_wordpress_db
 #
 # This function for suspending a certain user database.
+#
+# code used in:
+#
+# bin/v-change-database-owner
+# bin/v-log-action
+# bin/v-suspend-user
+# test/test.bats
+# web/bulk/db/index.php
+# web/suspend/db/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -5,6 +5,17 @@
 # example: v-backup-user admin yes
 #
 # This function is used for backing up user with all its domains and databases.
+#
+# code used in:
+#
+# bin/v-add-cron-job
+# bin/v-add-user
+# bin/v-add-user-notification
+# bin/v-schedule-user-backup
+# func/syshealth.sh
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# test/test.bats
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

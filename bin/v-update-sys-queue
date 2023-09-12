@@ -9,6 +9,21 @@
 # operations are handled by this script. It helps to optimize system behaviour.
 # In a nutshell Apache will be restarted only once even if 10 domains are
 # added or deleted.
+#
+# code used in:
+#
+# bin/v-add-cron-letsencrypt-job
+# bin/v-add-cron-restart-job
+# bin/v-add-letsencrypt-domain
+# bin/v-add-remote-dns-host
+# bin/v-delete-cron-restart-job
+# bin/v-delete-remote-dns-host
+# func/syshealth.sh
+# install/deb/logrotate/httpd-prerotate/awstats
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# install/upgrade/versions/1.1.0.sh
+# install/upgrade/versions/1.2.0.sh
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

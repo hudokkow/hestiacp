@@ -5,6 +5,14 @@
 # example: v-add-web-domain-redirect user domain.tld
 #
 # Function delete a forced redirect to a domain
+#
+# code used in:
+#
+# bin/v-add-letsencrypt-domain
+# bin/v-add-web-domain
+# bin/v-add-web-domain-redirect
+# test/test.bats
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

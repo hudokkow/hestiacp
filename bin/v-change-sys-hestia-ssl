@@ -5,6 +5,10 @@
 # example: v-change-sys-hestia-ssl /home/new/dir/path yes
 #
 # This function changes hestia SSL certificate and the key.
+#
+# code used in:
+#
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

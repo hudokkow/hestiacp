@@ -5,6 +5,12 @@
 # example: v-get-user-salt admin
 #
 # This function provides users salt
+#
+# code used in:
+#
+# test/test.bats
+# web/api/index.php
+# web/login/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

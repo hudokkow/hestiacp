@@ -5,6 +5,18 @@
 # example: v-update-user-stats admin
 #
 # Function logs user parameters into statistics database.
+#
+# code used in:
+#
+# bin/v-change-dns-domain-tpl
+# bin/v-list-user
+# bin/v-list-users
+# bin/v-list-users-stats
+# bin/v-list-user-stats
+# bin/v-rebuild-user
+# func/syshealth.sh
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

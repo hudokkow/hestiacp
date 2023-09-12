@@ -5,6 +5,10 @@
 # example: v-change-sys-timezone Europe/Berlin
 #
 # This function for changing system timezone.
+#
+# code used in:
+#
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

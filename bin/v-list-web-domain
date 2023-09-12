@@ -5,6 +5,37 @@
 # example: v-list-web-domain admin example.com
 #
 # This function to obtain web domain parameters.
+#
+# code used in:
+#
+# bin/v-add-letsencrypt-host
+# bin/v-add-web-domain
+# bin/v-change-domain-owner
+# bin/v-generate-debug-report
+# bin/v-rebuild-web-domains
+# bin/v-update-web-domains-disk
+# install/common/api/purge-nginx-cache
+# install/upgrade/manual/migrate_apache.sh
+# install/upgrade/manual/migrate_multiphp.sh
+# install/upgrade/manual/migrate_ngnix_apache_nginx-php-fpm.sh
+# install/upgrade/versions/1.00.0-190618.sh
+# install/upgrade/versions/1.1.0.sh
+# test/restore.bats
+# test/test.bats
+# web/add/webapp/index.php
+# web/add/web/index.php
+# web/download/web-log/index.php
+# web/edit/web/index.php
+# web/inc/main.php
+# web/list/web/index.php
+# web/list/web-log/index.php
+# web/src/app/System/HestiaApp.php
+# web/src/app/WebApp/Installers/DokuWiki/DokuWikiSetup.php
+# web/src/app/WebApp/Installers/Flarum/FlarumSetup.php
+# web/src/app/WebApp/Installers/MediaWiki/MediaWikiSetup.php
+# web/src/app/WebApp/Installers/Opencart/OpencartSetup.php
+# web/src/app/WebApp/Installers/Prestashop/PrestashopSetup.php
+# web/src/app/WebApp/Installers/WordPress/WordPressSetup.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

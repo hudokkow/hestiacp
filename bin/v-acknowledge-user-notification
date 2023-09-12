@@ -5,6 +5,11 @@
 # example: v-acknowledge-user-notification
 #
 # This function updates user notification.
+#
+# code used in:
+#
+# test/test.bats
+# web/delete/notification/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -5,6 +5,11 @@
 # example: v-delete-web-domain-ssl-hsts user domain.tld
 #
 # This function removes force SSL configurations.
+#
+# code used in:
+#
+# func/rebuild.sh
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

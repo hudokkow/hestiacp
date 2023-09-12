@@ -6,6 +6,11 @@
 #
 # The "PERMISSIONS" argument is optional for the admin user only.
 # This function creates a key file in $HESTIA/data/access-keys/
+#
+# code used in:
+#
+# bin/v-add-sys-pma-sso
+# web/add/access-key/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -6,6 +6,11 @@
 # example: v-add-mail-domain-reject admin mydomain.tld
 #
 # The function enables spam rejection for incoming emails.
+#
+# code used in:
+#
+# web/add/mail/index.php
+# web/edit/mail/index.php
 
 #----------------------------------------------------------#
 #                    Variable&Function                     #

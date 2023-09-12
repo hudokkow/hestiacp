@@ -6,6 +6,12 @@
 #
 # This function of deleting the alias domain (parked domain). By this call
 # default www aliase can be removed as well.
+#
+# code used in:
+#
+# test/letsencrypt.bats
+# test/test.bats
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -6,6 +6,18 @@
 #
 # This function for deleting the database. If database user have access to
 # another database, he will not be deleted.
+#
+# code used in:
+#
+# bin/v-add-database
+# bin/v-add-database-temp-user
+# bin/v-change-database-owner
+# bin/v-delete-user
+# install/common/api/phpmyadmin-sso
+# install/deb/phpmyadmin/hestia-sso.php
+# test/test.bats
+# web/bulk/db/index.php
+# web/delete/db/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

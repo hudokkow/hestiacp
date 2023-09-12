@@ -5,6 +5,10 @@
 # example: v-update-web-domains-stat admin
 #
 # This function runs log analyser usage for all user webdomains.
+#
+# code used in:
+#
+# Not used anywhere
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

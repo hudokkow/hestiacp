@@ -5,6 +5,10 @@
 # example: v-get-dns-domain-value admin example.com SOA
 #
 # This function for getting a certain DNS domain parameter.
+#
+# code used in:
+#
+# Not used anywhere
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -9,6 +9,11 @@
 # you can set limit for number of databases on a host. Template parameter is
 # used only for PostgreSQL and has an default value "template1". You can read
 # more about templates in official PostgreSQL documentation.
+#
+# code used in:
+#
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -6,6 +6,11 @@
 # example:   v-change-user-theme peter vestia
 #
 # Changes web UI display theme for specified user.
+#
+# code used in:
+#
+# test/test.bats
+# web/edit/user/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

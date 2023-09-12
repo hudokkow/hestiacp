@@ -3,6 +3,12 @@
 # options: USER DOMAIN [RESTART] [QUIET]
 #
 # This function enables HSTS for the requested domain.
+#
+# code used in:
+#
+# bin/v-add-letsencrypt-host
+# func/rebuild.sh
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

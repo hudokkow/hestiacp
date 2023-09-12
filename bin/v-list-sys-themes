@@ -6,6 +6,12 @@
 #
 # This function for obtaining the list of themes in the theme
 # library and displaying them in the backend or user interface.
+#
+# code used in:
+#
+# bin/v-change-user-theme
+# web/edit/server/index.php
+# web/edit/user/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

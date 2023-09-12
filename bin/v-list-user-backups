@@ -5,6 +5,11 @@
 # example: v-list-user-backups admin
 #
 # This function for obtaining the list of available user backups.
+#
+# code used in:
+#
+# test/test.bats
+# web/list/backup/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

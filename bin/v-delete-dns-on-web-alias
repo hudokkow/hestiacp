@@ -5,6 +5,11 @@
 # example: v-delete-dns-on-web-alias admin example.com www.example.com
 #
 # This function deletes dns domain or dns record based on web domain alias.
+#
+# code used in:
+#
+# bin/v-delete-dns-domain
+# web/edit/web/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

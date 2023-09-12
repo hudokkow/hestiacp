@@ -5,6 +5,13 @@
 # example: v-change-sys-webmail YourtrickyURLhere
 #
 # This function changes the webmail url in apache2 or nginx configuration.
+#
+# code used in:
+#
+# bin/v-add-mail-domain
+# bin/v-add-mail-domain-webmail
+# bin/v-change-sys-config-value
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

@@ -10,6 +10,21 @@
 #
 # This function changes the database editor url in
 # apache2 or nginx configuration.
+#
+# code used in:
+#
+# bin/v-change-sys-config-value
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# install/upgrade/manual/migrate_phpmyadmin.sh
+# install/upgrade/versions/1.2.0.sh
+# install/upgrade/versions/1.4.15.sh
+# install/upgrade/versions/1.4.16.sh
+# install/upgrade/versions/1.4.17.sh
+# install/upgrade/versions/1.4.6.sh
+# install/upgrade/versions/1.4.7.sh
+# install/upgrade/versions/1.5.0.sh
+# web/edit/server/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

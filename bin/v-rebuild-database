@@ -5,6 +5,17 @@
 # example: v-rebuild-database user user_wordpress
 #
 # This function for rebuilding a single database for a user
+#
+# code used in:
+#
+# bin/v-change-database-owner
+# bin/v-import-cpanel
+# bin/v-log-action
+# bin/v-rebuild-all
+# func/rebuild.sh
+# test/test.bats
+# web/bulk/db/index.php
+# web/bulk/user/index.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

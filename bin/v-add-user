@@ -5,6 +5,46 @@
 # example: v-add-user user P4$$w@rD bgates@aol.com
 #
 # This function creates new user account.
+#
+# code used in:
+#
+# bin/v-add-fs-file
+# bin/v-add-sys-dependencies
+# bin/v-add-sys-filemanager
+# bin/v-add-sys-sftp-jail
+# bin/v-add-web-domain-ftp
+# bin/v-backup-user
+# bin/v-change-domain-owner
+# bin/v-change-user-shell
+# bin/v-download-backup
+# bin/v-generate-debug-report
+# bin/v-import-cpanel
+# bin/v-restore-user
+# func/rebuild.sh
+# func/upgrade.sh
+# install/common/api/billing
+# install/deb/filemanager/filegator/configuration.php
+# install/hst-install-debian.sh
+# install/hst-install-ubuntu.sh
+# install/upgrade/versions/1.3.4.sh
+# install/upgrade/versions/1.4.0.sh
+# install/upgrade/versions/1.4.13.sh
+# install/upgrade/versions/1.4.14.sh
+# install/upgrade/versions/1.5.8.sh
+# install/upgrade/versions/1.6.0.sh
+# install/upgrade/versions/1.8.0.sh
+# install/upgrade/versions/1.9.0.sh
+# test/api.bats
+# test/config-tests.bats
+# test/letsencrypt.bats
+# test/restore.bats
+# test/test.bats
+# web/add/key/index.php
+# web/add/package/index.php
+# web/add/user/index.php
+# web/edit/package/index.php
+# web/edit/user/index.php
+# web/src/app/System/HestiaApp.php
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

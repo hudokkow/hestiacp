@@ -107,7 +107,7 @@ check_wget_curl() {
 		# 		exit 1
 		# 	fi
 		# else
-		wget -q https://raw.githubusercontent.com/hestiacp/hestiacp/release/install/hst-install-$type.sh -O hst-install-$type.sh
+		wget -q https://raw.githubusercontent.com/hudokkow/hestiacp/debian_13/install/hst-install-$type.sh -O hst-install-$type.sh
 		if [ "$?" -eq '0' ]; then
 			bash hst-install-$type.sh $*
 			exit
@@ -130,7 +130,7 @@ check_wget_curl() {
 		# 		exit 1
 		# 	fi
 		# else
-		curl -s -O https://raw.githubusercontent.com/hestiacp/hestiacp/release/install/hst-install-$type.sh
+		curl -s -O https://raw.githubusercontent.com/hudokkow/hestiacp/debian_13/install/hst-install-$type.sh
 		if [ "$?" -eq '0' ]; then
 			bash hst-install-$type.sh $*
 			exit

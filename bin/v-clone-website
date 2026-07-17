@@ -703,7 +703,14 @@ if [ "$SOURCE_DB_TYPE" = "pgsql" ]; then
 	psql_dump "$tmpdir/$SOURCE_DB_NAME.sql" "$SOURCE_DB_NAME"
 else
 	mysql_connect "$SOURCE_DB_HOST"
-	mysql_dump "$tmpdir/$SOURCE_DB_NAME.sql" "$SOURCE_DB_NAME"
+	mysqldmp="mysqldump"
+	if [ -f '/usr/bin/mariadb-dump' ]; then
+		mysqldmp="/usr/bin/mariadb-dump"
+	fi
+	$mysqldmp --defaults-file=$mycnf --skip-triggers --max_allowed_packet=1024M "$SOURCE_DB_NAME" > "$tmpdir/$SOURCE_DB_NAME.sql" 2> /tmp/e.mysql.clone
+	if [ '0' -ne "$?" ]; then
+		$mysqldmp --defaults-extra-file=$mycnf --skip-triggers --max_allowed_packet=1024M "$SOURCE_DB_NAME" > "$tmpdir/$SOURCE_DB_NAME.sql" 2> /tmp/e.mysql.clone
+	fi
 fi
 
 # Populate target database

@@ -48,6 +48,13 @@ sudo -H -u"$TARGET_USER" "$WPCLI_BIN" cache flush --skip-plugins --skip-themes
 sudo -H -u"$TARGET_USER" "$WPCLI_BIN" config shuffle-salts WP_CACHE_KEY_SALT --force --skip-plugins --skip-themes
 sudo -H -u"$TARGET_USER" "$WPCLI_BIN" config shuffle-salts --skip-plugins --skip-themes
 
+# Update Wordfence WAF path in .user.ini if present
+user_ini="$TARGET_DIR/.user.ini"
+if [ -f "$user_ini" ]; then
+	echo "=== Updating .user.ini Wordfence path"
+	sed -i "s|/home/.*/public_html|/home/$TARGET_USER/web/$TARGET_DOMAIN/public_html|g" "$user_ini"
+fi
+
 echo "===== DONE ====="
 echo "You can visit http://$TARGET_DOMAIN/"
 

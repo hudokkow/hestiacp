@@ -126,6 +126,112 @@ switch ($page) {
 		header("Location: /next/?p=web");
 		exit();
 
+	case "dns-add":
+		$view["page_title"] = _("Add DNS Domain");
+		$content = __DIR__ . "/templates/pages/dns-add.php";
+		break;
+
+	case "dns-edit":
+		$view["page_title"] = _("Edit DNS Domain");
+		$domain = preg_replace("/[^a-zA-Z0-9.\-]/", "", $_GET["domain"] ?? "");
+		exec(
+			HESTIA_CMD .
+				"v-list-dns-domain " .
+				quoteshellarg($view["user"]) .
+				" " .
+				quoteshellarg($domain) .
+				" json",
+			$out,
+			$rc,
+		);
+		$domainData = $rc === 0 ? json_decode(implode("", $out), true) : [];
+		$domainData = $domainData[$domain] ?? [];
+		$content = __DIR__ . "/templates/pages/dns-edit.php";
+		break;
+
+	case "dns-delete":
+		if ($_SERVER["REQUEST_METHOD"] === "POST") {
+			verify_csrf($_POST);
+			$del = preg_replace("/[^a-zA-Z0-9.\-]/", "", $_POST["domain"] ?? "");
+			exec(
+				HESTIA_CMD .
+					"v-delete-dns-domain " .
+					quoteshellarg($view["user"]) .
+					" " .
+					quoteshellarg($del),
+				$out,
+				$rc,
+			);
+		}
+		header("Location: /next/?p=dns");
+		exit();
+
+	case "mail-edit":
+		$view["page_title"] = _("Edit Mail Domain");
+		$domain = preg_replace("/[^a-zA-Z0-9.\-]/", "", $_GET["domain"] ?? "");
+		exec(
+			HESTIA_CMD .
+				"v-list-mail-domain " .
+				quoteshellarg($view["user"]) .
+				" " .
+				quoteshellarg($domain) .
+				" json",
+			$out,
+			$rc,
+		);
+		$domainData = $rc === 0 ? json_decode(implode("", $out), true) : [];
+		$domainData = $domainData[$domain] ?? [];
+		$content = __DIR__ . "/templates/pages/mail-edit.php";
+		break;
+
+	case "mail-delete":
+		if ($_SERVER["REQUEST_METHOD"] === "POST") {
+			verify_csrf($_POST);
+			$del = preg_replace("/[^a-zA-Z0-9.\-]/", "", $_POST["domain"] ?? "");
+			exec(
+				HESTIA_CMD .
+					"v-delete-mail-domain " .
+					quoteshellarg($view["user"]) .
+					" " .
+					quoteshellarg($del),
+				$out,
+				$rc,
+			);
+		}
+		header("Location: /next/?p=mail");
+		exit();
+
+	case "db-add":
+		$view["page_title"] = _("Add Database");
+		$content = __DIR__ . "/templates/pages/db-add.php";
+		break;
+
+	case "db-edit":
+		$view["page_title"] = _("Edit Database");
+		$db = preg_replace("/[^a-zA-Z0-9_]/", "", $_GET["database"] ?? "");
+		exec(HESTIA_CMD . "v-list-databases " . quoteshellarg($view["user"]) . " json", $out, $rc);
+		$databases = $rc === 0 ? json_decode(implode("", $out), true) : [];
+		$dbData = $databases[$db] ?? [];
+		$content = __DIR__ . "/templates/pages/db-edit.php";
+		break;
+
+	case "db-delete":
+		if ($_SERVER["REQUEST_METHOD"] === "POST") {
+			verify_csrf($_POST);
+			$del = preg_replace("/[^a-zA-Z0-9_]/", "", $_POST["database"] ?? "");
+			exec(
+				HESTIA_CMD .
+					"v-delete-database " .
+					quoteshellarg($view["user"]) .
+					" " .
+					quoteshellarg($del),
+				$out,
+				$rc,
+			);
+		}
+		header("Location: /next/?p=db");
+		exit();
+
 	case "home":
 	default:
 		$page = "home";

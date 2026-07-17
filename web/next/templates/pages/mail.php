@@ -34,7 +34,7 @@
 							<?php else: ?>
 								<?php foreach ($domains as $domain => $d): ?>
 									<tr>
-										<th scope="row"><a href="/edit/mail/?domain=<?= urlencode($domain) ?>"><?= htmlspecialchars(
+										<th scope="row"><a href="/next/?p=mail-edit&domain=<?= urlencode($domain) ?>"><?= htmlspecialchars(
 	$domain,
 ) ?></a></th>
 										<td><?= htmlspecialchars($d["ACCOUNTS"] ?? "0") ?></td>
@@ -61,7 +61,7 @@
 											<?php endif; ?>
 										</td>
 										<td class="col-actions">
-											<a class="btn btn-sm btn-ghost" href="/edit/mail/?domain=<?= urlencode($domain) ?>"><?= _(
+											<a class="btn btn-sm btn-ghost" href="/next/?p=mail-edit&domain=<?= urlencode($domain) ?>"><?= _(
 	"Edit",
 ) ?></a>
 										</td>

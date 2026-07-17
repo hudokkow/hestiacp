@@ -9,7 +9,7 @@
 						<h1><?= _("DNS Domains") ?></h1>
 						<p><?= sprintf(_("%d domain(s)"), count($domains)) ?></p>
 					</div>
-					<a class="btn btn-primary" href="/add/dns/">
+					<a class="btn btn-primary" href="/next/?p=dns-add">
 						<i class="fas fa-plus" aria-hidden="true"></i> <?= _("Add Domain") ?>
 					</a>
 				</header>
@@ -34,7 +34,7 @@
 							<?php else: ?>
 								<?php foreach ($domains as $domain => $d): ?>
 									<tr>
-										<th scope="row"><a href="/edit/dns/?domain=<?= urlencode($domain) ?>"><?= htmlspecialchars(
+										<th scope="row"><a href="/next/?p=dns-edit&domain=<?= urlencode($domain) ?>"><?= htmlspecialchars(
 	$domain,
 ) ?></a></th>
 										<td><?= htmlspecialchars($d["IP"] ?? "—") ?></td>
@@ -55,7 +55,7 @@
 											<?php endif; ?>
 										</td>
 										<td class="col-actions">
-											<a class="btn btn-sm btn-ghost" href="/edit/dns/?domain=<?= urlencode($domain) ?>"><?= _(
+											<a class="btn btn-sm btn-ghost" href="/next/?p=dns-edit&domain=<?= urlencode($domain) ?>"><?= _(
 	"Edit",
 ) ?></a>
 										</td>

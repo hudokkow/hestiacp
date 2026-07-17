@@ -9,7 +9,7 @@
 						<h1><?= _("Databases") ?></h1>
 						<p><?= sprintf(_("%d database(s)"), count($databases)) ?></p>
 					</div>
-					<a class="btn btn-primary" href="/add/db/">
+					<a class="btn btn-primary" href="/next/?p=db-add">
 						<i class="fas fa-plus" aria-hidden="true"></i> <?= _("Add Database") ?>
 					</a>
 				</header>
@@ -34,7 +34,7 @@
 							<?php else: ?>
 								<?php foreach ($databases as $db => $d): ?>
 									<tr>
-										<th scope="row"><a href="/edit/db/?database=<?= urlencode($db) ?>"><?= htmlspecialchars(
+										<th scope="row"><a href="/next/?p=db-edit&database=<?= urlencode($db) ?>"><?= htmlspecialchars(
 	$db,
 ) ?></a></th>
 										<td><?= htmlspecialchars($d["TYPE"] ?? "—") ?></td>
@@ -49,7 +49,9 @@
 											<?php endif; ?>
 										</td>
 										<td class="col-actions">
-											<a class="btn btn-sm btn-ghost" href="/edit/db/?database=<?= urlencode($db) ?>"><?= _("Edit") ?></a>
+											<a class="btn btn-sm btn-ghost" href="/next/?p=db-edit&database=<?= urlencode($db) ?>"><?= _(
+	"Edit",
+) ?></a>
 										</td>
 									</tr>
 								<?php endforeach; ?>

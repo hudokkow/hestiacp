@@ -48,3 +48,4 @@ web/src/vendor/
 # Node
 **/node_modules/
 npm-debug.log
+web/next/dist/

@@ -1,0 +1,94 @@
+/* layout.css — MyVesta-style three-column app shell */
+@layer layout {
+	.app-shell {
+		display: grid;
+		grid-template-columns: var(--nav-w) minmax(0, 1fr) var(--rail-w);
+		grid-template-rows: var(--topbar-h) minmax(0, 1fr);
+		grid-template-areas:
+			"topbar topbar topbar"
+			"nav    main   rail";
+		min-height: 100vh;
+		min-height: 100dvh;
+		background: var(--bg);
+	}
+
+	.app-topbar {
+		grid-area: topbar;
+		position: sticky;
+		top: 0;
+		z-index: 30;
+		display: flex;
+		align-items: center;
+		gap: var(--space-4);
+		padding-inline: var(--space-4);
+		background: color-mix(in oklch, var(--surface-1) 92%, transparent);
+		border-bottom: 1px solid var(--border);
+		backdrop-filter: blur(8px);
+	}
+
+	.app-nav {
+		grid-area: nav;
+		background: var(--surface-1);
+		border-right: 1px solid var(--border);
+		overflow-y: auto;
+		padding: var(--space-4) var(--space-3);
+	}
+
+	.app-main {
+		grid-area: main;
+		overflow-y: auto;
+		padding: var(--space-5);
+		container-type: inline-size;
+	}
+
+	.app-rail {
+		grid-area: rail;
+		background: var(--surface-1);
+		border-left: 1px solid var(--border);
+		overflow-y: auto;
+		padding: var(--space-4);
+	}
+
+	.app-content {
+		max-width: var(--content-max);
+		margin-inline: auto;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-5);
+	}
+
+	/* Collapse rail on mid widths */
+	@media (max-width: 1100px) {
+		.app-shell {
+			grid-template-columns: var(--nav-w) minmax(0, 1fr);
+			grid-template-areas:
+				"topbar topbar"
+				"nav    main";
+		}
+		.app-rail {
+			display: none;
+		}
+	}
+
+	/* Collapse nav into a drawer on small screens */
+	@media (max-width: 720px) {
+		.app-shell {
+			grid-template-columns: minmax(0, 1fr);
+			grid-template-areas:
+				"topbar"
+				"main";
+		}
+		.app-nav {
+			position: fixed;
+			inset: 0 auto 0 0;
+			width: min(80vw, var(--nav-w));
+			z-index: 50;
+			transform: translateX(-100%);
+			transition: transform var(--dur) var(--ease);
+		}
+		.app-shell[data-nav-open="true"] .app-nav {
+			transform: translateX(0);
+			box-shadow: var(--shadow-lg);
+		}
+	}
+}

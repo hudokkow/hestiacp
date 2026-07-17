@@ -279,6 +279,16 @@ function top_panel($user, $TAB) {
 		unset($_SESSION["userTheme"]);
 	}
 
+	// Load user's selected interface version and do not change it when impersonating
+	if (isset($panel[$user]["UI_VERSION"]) && !isset($_SESSION["look"])) {
+		$_SESSION["userUI"] = $panel[$user]["UI_VERSION"];
+	}
+
+	// Unset userUI override variable if POLICY_USER_CHANGE_UI is set to no
+	if ($_SESSION["POLICY_USER_CHANGE_UI"] === "no") {
+		unset($_SESSION["userUI"]);
+	}
+
 	// Set preferred sort order
 	if (!isset($_SESSION["look"])) {
 		$_SESSION["userSortOrder"] = $panel[$user]["PREF_UI_SORT"];

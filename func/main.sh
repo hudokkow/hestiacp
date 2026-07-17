@@ -1056,6 +1056,16 @@ is_common_format_valid() {
 	is_no_new_line_format "$1"
 }
 
+# UI version validator (legacy | next)
+is_ui_version_format_valid() {
+	case "$1" in
+		legacy | next) ;;
+		*)
+			check_result "$E_INVALID" "invalid ui_version format :: $1"
+			;;
+	esac
+}
+
 # Common format validator for fields that need spaces
 is_common_format_spaces_valid() {
 	# Block injection chars but allow spaces
@@ -1516,6 +1526,7 @@ is_format_valid() {
 				template) is_object_format_valid "$arg" "$arg_name" ;;
 				theme) is_common_format_valid "$arg" "$arg_name" ;;
 				ttl) is_int_format_valid "$arg" 'ttl' ;;
+				ui_version) is_ui_version_format_valid "$arg" ;;
 				user) is_user_format_valid "$arg" $arg_name ;;
 				wday) is_cron_format_valid "$arg" $arg_name ;;
 				value) is_common_format_valid "$arg" $arg_name ;;

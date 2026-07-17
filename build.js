@@ -143,12 +143,46 @@ async function ensureDir(dir) {
 	}
 }
 
+// Build next UI JS
+async function buildNextJS() {
+	const inputPath = './web/next/js/src/index.js';
+	try {
+		await esbuild.build({
+			entryPoints: [inputPath],
+			outfile: './web/next/dist/main.min.js',
+			bundle: true,
+			minify: true,
+			sourcemap: true,
+			external: externalPackages,
+		});
+		console.log('✅ Next UI JavaScript build completed for', inputPath);
+	} catch (error) {
+		console.error('❌ Error building next UI JavaScript:', error);
+		process.exit(1);
+	}
+}
+
+// Build next UI CSS (layered token system -> single dist file)
+async function buildNextCSS() {
+	const inputPath = './web/next/css/src/index.css';
+	const outputPath = './web/next/dist/main.min.css';
+	try {
+		await processCSS(inputPath, outputPath);
+		console.log('✅ Next UI CSS build completed for', inputPath);
+	} catch (error) {
+		console.error('❌ Error building next UI CSS:', error);
+		process.exit(1);
+	}
+}
+
 // Build all assets
 async function build() {
 	console.log('🚀 Building JS and CSS...');
 	await buildJS();
 	await buildExternalJS();
 	await buildCSS();
+	await buildNextJS();
+	await buildNextCSS();
 	console.log('🎉 Build completed.');
 }
 

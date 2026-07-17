@@ -1,0 +1,33 @@
+/* components/alerts.css */
+@layer components {
+	.alert {
+		display: flex;
+		gap: var(--space-3);
+		align-items: flex-start;
+		padding: var(--space-3) var(--space-4);
+		border-radius: var(--radius-md);
+		border: 1px solid var(--border-strong);
+		background: var(--surface-2);
+		font-size: var(--step--1);
+	}
+	.alert-success {
+		border-color: color-mix(in oklch, var(--success) 40%, transparent);
+		background: color-mix(in oklch, var(--success) 12%, transparent);
+		color: var(--success);
+	}
+	.alert-warning {
+		border-color: color-mix(in oklch, var(--warning) 40%, transparent);
+		background: color-mix(in oklch, var(--warning) 12%, transparent);
+		color: var(--warning);
+	}
+	.alert-danger {
+		border-color: color-mix(in oklch, var(--danger) 40%, transparent);
+		background: color-mix(in oklch, var(--danger) 12%, transparent);
+		color: var(--danger);
+	}
+	.alert-info {
+		border-color: color-mix(in oklch, var(--info) 40%, transparent);
+		background: var(--accent-soft);
+		color: var(--accent-strong);
+	}
+}

@@ -177,8 +177,17 @@
 				</select>
 			</div>
 			<?php } ?>
-				<div class="u-mb10">
-					<label for="v_sort_order" class="form-label"><?= tohtml( _("Default List Sort Order")) ?></label>
+			<?php if ($_SESSION["POLICY_USER_CHANGE_UI"] !== "no" && $_SESSION["POLICY_SYSTEM_ENABLE_NEXT_UI"] === "yes") { ?>
+			<div class="u-mb10">
+				<label for="v_user_ui" class="form-label"><?= tohtml( _("Interface Version")) ?></label>
+				<select class="form-select" name="v_user_ui" id="v_user_ui">
+					<option value='legacy' <?php if ($v_user_ui === 'legacy') echo 'selected' ?>><?= tohtml( _("Legacy")) ?></option>
+					<option value='next' <?php if ($v_user_ui === 'next') echo 'selected' ?>><?= tohtml( _("Modern (Beta)")) ?></option>
+				</select>
+			</div>
+			<?php } ?>
+			<div class="u-mb10">
+				<label for="v_sort_order" class="form-label"><?= tohtml( _("Default List Sort Order")) ?></label>
 					<select class="form-select" name="v_sort_order" id="v_sort_order">
 						<option value='date' <?php if ($v_sort_order === 'date') echo 'selected' ?>><?= tohtml( _("Date")) ?></option>
 						<option value='name' <?php if ($v_sort_order === 'name') echo 'selected' ?>><?= tohtml( _("Name")) ?></option>

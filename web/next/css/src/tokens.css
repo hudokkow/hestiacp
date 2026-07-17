@@ -1,0 +1,132 @@
+/* tokens.css — single source of truth (OKLCH) */
+@layer tokens {
+	:root {
+		color-scheme: dark;
+
+		/* ---- Brand / accent (teal, OKLCH hue ~185) ---- */
+		--teal-50: oklch(0.97 0.03 185);
+		--teal-100: oklch(0.92 0.06 185);
+		--teal-200: oklch(0.85 0.1 185);
+		--teal-300: oklch(0.78 0.13 185);
+		--teal-400: oklch(0.7 0.14 185);
+		--teal-500: oklch(0.62 0.14 185);
+		--teal-600: oklch(0.54 0.13 185);
+		--teal-700: oklch(0.46 0.11 185);
+		--teal-800: oklch(0.38 0.09 185);
+		--teal-900: oklch(0.3 0.07 185);
+
+		--accent: var(--teal-500);
+		--accent-strong: var(--teal-400);
+		--accent-soft: color-mix(in oklch, var(--teal-500) 18%, transparent);
+		--on-accent: oklch(0.98 0.01 185);
+
+		/* ---- Neutrals (very dark blue/gray) ---- */
+		--gray-950: oklch(0.16 0.01 250);
+		--gray-900: oklch(0.2 0.012 250);
+		--gray-850: oklch(0.24 0.014 250);
+		--gray-800: oklch(0.28 0.016 250);
+		--gray-750: oklch(0.33 0.018 250);
+		--gray-700: oklch(0.4 0.02 250);
+		--gray-600: oklch(0.5 0.022 250);
+		--gray-500: oklch(0.6 0.02 250);
+		--gray-400: oklch(0.72 0.018 250);
+		--gray-300: oklch(0.84 0.014 250);
+		--gray-200: oklch(0.92 0.01 250);
+		--gray-100: oklch(0.97 0.006 250);
+
+		/* ---- Semantic surfaces ---- */
+		--bg: var(--gray-950);
+		--surface-1: var(--gray-900);
+		--surface-2: var(--gray-850);
+		--surface-3: var(--gray-800);
+		--surface-hover: var(--gray-800);
+		--border: var(--gray-750);
+		--border-strong: var(--gray-700);
+
+		/* ---- Text ---- */
+		--text: var(--gray-100);
+		--text-muted: var(--gray-400);
+		--text-subtle: var(--gray-500);
+		--text-on-accent: var(--on-accent);
+
+		/* ---- Feedback ---- */
+		--success: oklch(0.72 0.16 150);
+		--warning: oklch(0.78 0.16 80);
+		--danger: oklch(0.62 0.2 25);
+		--info: var(--teal-400);
+
+		/* ---- Focus ---- */
+		--focus-ring: var(--teal-400);
+
+		/* ---- Radii ---- */
+		--radius-xs: 4px;
+		--radius-sm: 6px;
+		--radius-md: 10px;
+		--radius-lg: 14px;
+		--radius-xl: 20px;
+		--radius-pill: 999px;
+
+		/* ---- Spacing scale ---- */
+		--space-1: 0.25rem;
+		--space-2: 0.5rem;
+		--space-3: 0.75rem;
+		--space-4: 1rem;
+		--space-5: 1.5rem;
+		--space-6: 2rem;
+		--space-7: 3rem;
+
+		/* ---- Fluid typography ---- */
+		--font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+		--font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+		--step--1: clamp(0.78rem, 0.74rem + 0.18vw, 0.88rem);
+		--step-0: clamp(0.9rem, 0.85rem + 0.25vw, 1rem);
+		--step-1: clamp(1.05rem, 0.98rem + 0.35vw, 1.25rem);
+		--step-2: clamp(1.25rem, 1.12rem + 0.6vw, 1.6rem);
+		--step-3: clamp(1.5rem, 1.28rem + 1vw, 2.1rem);
+		--step-4: clamp(1.9rem, 1.5rem + 1.8vw, 2.9rem);
+
+		/* ---- Shadows (teal-tinted) ---- */
+		--shadow-sm: 0 1px 2px color-mix(in oklch, var(--gray-950) 60%, transparent);
+		--shadow-md: 0 4px 16px color-mix(in oklch, var(--gray-950) 55%, transparent);
+		--shadow-lg: 0 12px 40px color-mix(in oklch, var(--gray-950) 50%, transparent);
+		--shadow-accent: 0 6px 24px color-mix(in oklch, var(--teal-500) 35%, transparent);
+
+		/* ---- Motion ---- */
+		--ease: cubic-bezier(0.4, 0, 0.2, 1);
+		--dur-fast: 120ms;
+		--dur: 200ms;
+		--dur-slow: 360ms;
+
+		/* ---- Layout metrics ---- */
+		--nav-w: 16rem;
+		--rail-w: 20rem;
+		--topbar-h: 3.5rem;
+		--content-max: 90rem;
+	}
+
+	/* Light theme override block */
+	:root[data-theme="light"] {
+		color-scheme: light;
+
+		--bg: var(--gray-100);
+		--surface-1: #ffffff;
+		--surface-2: var(--gray-100);
+		--surface-3: var(--gray-200);
+		--surface-hover: var(--gray-200);
+		--border: var(--gray-200);
+		--border-strong: var(--gray-300);
+
+		--text: var(--gray-900);
+		--text-muted: var(--gray-600);
+		--text-subtle: var(--gray-500);
+
+		--accent: var(--teal-600);
+		--accent-strong: var(--teal-700);
+		--accent-soft: color-mix(in oklch, var(--teal-600) 14%, transparent);
+		--on-accent: #ffffff;
+
+		--shadow-sm: 0 1px 2px color-mix(in oklch, var(--gray-900) 12%, transparent);
+		--shadow-md: 0 4px 16px color-mix(in oklch, var(--gray-900) 10%, transparent);
+		--shadow-lg: 0 12px 40px color-mix(in oklch, var(--gray-900) 8%, transparent);
+	}
+}

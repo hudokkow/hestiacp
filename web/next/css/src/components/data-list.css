@@ -1,0 +1,63 @@
+/* components/data-list.css — modern table replacement */
+@layer components {
+	.data-list {
+		width: 100%;
+		border-collapse: separate;
+		border-spacing: 0;
+		font-size: var(--step--1);
+	}
+	.data-list caption {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+	}
+	.data-list thead th {
+		text-align: start;
+		padding: var(--space-3);
+		color: var(--text-subtle);
+		font-weight: 600;
+		border-bottom: 1px solid var(--border-strong);
+		white-space: nowrap;
+	}
+	.data-list tbody td {
+		padding: var(--space-3);
+		border-bottom: 1px solid var(--border);
+		color: var(--text);
+		vertical-align: middle;
+	}
+	.data-list tbody tr {
+		transition: background var(--dur) var(--ease);
+	}
+	.data-list tbody tr:hover {
+		background: var(--surface-2);
+	}
+	.data-list .col-actions {
+		text-align: end;
+		white-space: nowrap;
+	}
+	.badge {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+		padding: 0.15rem 0.55rem;
+		border-radius: var(--radius-pill);
+		font-size: var(--step--1);
+		font-weight: 600;
+		background: var(--surface-3);
+		color: var(--text-muted);
+	}
+	.badge-success {
+		background: color-mix(in oklch, var(--success) 18%, transparent);
+		color: var(--success);
+	}
+	.badge-danger {
+		background: color-mix(in oklch, var(--danger) 18%, transparent);
+		color: var(--danger);
+	}
+	.badge-accent {
+		background: var(--accent-soft);
+		color: var(--accent-strong);
+	}
+}

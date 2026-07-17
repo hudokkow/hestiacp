@@ -245,9 +245,27 @@
 } ?>" href="/list/stats/">
 									<i class="fas fa-chart-line"></i>
 									<span class="top-bar-menu-link-label u-hide-desktop"><?= _("Statistics") ?></span>
-								</a>
+						</a>
+						</li>
+
+						<!-- Interface version switcher -->
+						<?php if ($_SESSION["POLICY_SYSTEM_ENABLE_NEXT_UI"] === "yes") { ?>
+							<li class="top-bar-menu-item">
+								<?php if (($_SESSION["userUI"] ?? "legacy") === "next") { ?>
+									<a title="<?= _("Switch to Legacy interface") ?>" class="top-bar-menu-link" href="/switch-ui/?ui=legacy&token=<?= $_SESSION["token"] ?>">
+										<i class="fas fa-arrow-left-long"></i>
+										<span class="top-bar-menu-link-label u-hide-desktop"><?= _("Legacy UI") ?></span>
+									</a>
+								<?php } else { ?>
+									<a title="<?= _("Try the Modern interface") ?>" class="top-bar-menu-link" href="/switch-ui/?ui=next&token=<?= $_SESSION["token"] ?>">
+										<i class="fas fa-arrow-right-long"></i>
+										<span class="top-bar-menu-link-label u-hide-desktop"><?= _("Modern UI") ?></span>
+									</a>
+								<?php } ?>
 							</li>
-							<?php if ($_SESSION["HIDE_DOCS"] !== "yes") { ?>
+						<?php } ?>
+
+						<?php if ($_SESSION["HIDE_DOCS"] !== "yes") { ?>
 								<!-- Help / Documentation -->
 								<li class="top-bar-menu-item">
 									<a title="<?= _("Help") ?>" class="top-bar-menu-link" href="https://hestiacp.com/docs/" target="_blank" rel="noopener">

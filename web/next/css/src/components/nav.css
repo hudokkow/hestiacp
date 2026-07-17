@@ -1,0 +1,73 @@
+/* components/nav.css — left dark sidebar */
+@layer components {
+	.nav-group {
+		margin-bottom: var(--space-5);
+	}
+	.nav-group-label {
+		font-size: var(--step--1);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--text-subtle);
+		padding-inline: var(--space-3);
+		margin-bottom: var(--space-2);
+	}
+	.nav-list {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+	}
+	.nav-link {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		padding: var(--space-2) var(--space-3);
+		border-radius: var(--radius-sm);
+		color: var(--text-muted);
+		font-weight: 550;
+		transition:
+			background var(--dur) var(--ease),
+			color var(--dur) var(--ease);
+	}
+	.nav-link:hover {
+		background: var(--surface-2);
+		color: var(--text);
+	}
+	.nav-link[aria-current="page"] {
+		background: var(--accent-soft);
+		color: var(--accent-strong);
+	}
+	.nav-link .nav-icon {
+		display: inline-flex;
+		width: 1.25rem;
+		height: 1.25rem;
+		color: currentColor;
+	}
+	.nav-count {
+		margin-inline-start: auto;
+		font-size: var(--step--1);
+		background: var(--surface-3);
+		color: var(--text-muted);
+		border-radius: var(--radius-pill);
+		padding: 0.05rem 0.5rem;
+	}
+	.nav-brand {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-2) var(--space-3) var(--space-5);
+		font-size: var(--step-1);
+		font-weight: 700;
+		color: var(--text);
+	}
+	.nav-brand .brand-mark {
+		width: 1.75rem;
+		height: 1.75rem;
+		border-radius: var(--radius-sm);
+		background: linear-gradient(135deg, var(--teal-400), var(--teal-700));
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--on-accent);
+		font-weight: 800;
+	}
+}

@@ -52,6 +52,7 @@ $v_email = $data[$v_username]["CONTACT"];
 $v_package = $data[$v_username]["PACKAGE"];
 $v_language = $data[$v_username]["LANGUAGE"];
 $v_user_theme = $data[$v_username]["THEME"];
+$v_user_ui = $data[$v_username]["UI_VERSION"] ?? "legacy";
 $v_sort_order = $data[$v_username]["PREF_UI_SORT"];
 $v_name = $data[$v_username]["NAME"];
 $v_shell = $data[$v_username]["SHELL"];
@@ -462,6 +463,31 @@ if (!empty($_POST["save"])) {
 			if ($_SESSION["user"] === $v_username) {
 				unset($_SESSION["userTheme"]);
 				$_SESSION["userTheme"] = $v_user_theme;
+			}
+		}
+	}
+
+	// Update interface version
+	if (empty($_SESSION["error_msg"])) {
+		if (empty($_SESSION["userUI"])) {
+			$_SESSION["userUI"] = "legacy";
+		}
+		if ($_POST["v_user_ui"] != $_SESSION["userUI"]) {
+			exec(
+				HESTIA_CMD .
+					"v-change-user-ui-version " .
+					quoteshellarg($v_username) .
+					" " .
+					quoteshellarg($_POST["v_user_ui"]),
+				$output,
+				$return_var,
+			);
+			check_return_code($return_var, $output);
+			unset($output);
+			$v_user_ui = $_POST["v_user_ui"];
+			if ($_SESSION["user"] === $v_username) {
+				unset($_SESSION["userUI"]);
+				$_SESSION["userUI"] = $v_user_ui;
 			}
 		}
 	}

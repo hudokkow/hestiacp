@@ -1,0 +1,58 @@
+#!/bin/bash
+# info: updates user interface version
+# options: USER UI_VERSION
+#
+# example:   v-change-user-ui-version admin legacy
+# example:   v-change-user-ui-version peter next
+#
+# Changes which web UI is presented to the specified user (legacy or next).
+
+#----------------------------------------------------------#
+#                Variables & Functions                     #
+#----------------------------------------------------------#
+
+# Argument definition
+user=$1
+ui_version=$2
+
+# Includes
+# shellcheck source=/etc/hestiacp/hestia.conf
+source /etc/hestiacp/hestia.conf
+# shellcheck source=/usr/local/hestia/func/main.sh
+source $HESTIA/func/main.sh
+# shellcheck source=/usr/local/hestia/conf/hestia.conf
+# load config file
+source_conf "$HESTIA/conf/hestia.conf"
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+
+is_format_valid 'user' 'ui_version'
+is_object_valid 'user' 'USER' "$user"
+
+is_object_unsuspended 'user' 'USER' "$user"
+
+# Perform verification if read-only mode is enabled
+check_hestia_demo_mode
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+# Set ui version value
+check_ckey=$(grep "UI_VERSION" $USER_DATA/user.conf)
+if [ -z "$check_ckey" ]; then
+	# Rebuild user configuration to repair missing value
+	$BIN/v-rebuild-user "$user"
+fi
+update_user_value "$user" '$UI_VERSION' "$ui_version"
+
+#----------------------------------------------------------#
+#                       Hestia                             #
+#----------------------------------------------------------#
+
+# Logging
+$BIN/v-log-action "$user" "Info" "System" "Applied interface version to user interface (UI_VERSION: $ui_version)."
+
+exit

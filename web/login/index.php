@@ -345,6 +345,14 @@ function authenticate_user($user, $password, $twofa = "") {
 					unset($_SESSION["userTheme"]);
 				}
 
+				// Set active interface version on login
+				$_SESSION["userUI"] = !empty($data[$user]["UI_VERSION"])
+					? $data[$user]["UI_VERSION"]
+					: "legacy";
+				if ($_SESSION["POLICY_USER_CHANGE_UI"] !== "yes") {
+					unset($_SESSION["userUI"]);
+				}
+
 				$_SESSION["userSortOrder"] = !empty($data[$user]["PREF_UI_SORT"])
 					? $data[$user]["PREF_UI_SORT"]
 					: "name";
@@ -361,6 +369,14 @@ function authenticate_user($user, $password, $twofa = "") {
 				session_regenerate_id(true);
 
 				// Redirect request to control panel interface
+				if (
+					$_SESSION["POLICY_SYSTEM_ENABLE_NEXT_UI"] === "yes" &&
+					($_SESSION["userUI"] ?? "legacy") === "next"
+				) {
+					header("Location: /next/");
+					unset($_SESSION["request_uri"]);
+					exit();
+				}
 				if (!empty($_SESSION["request_uri"])) {
 					header("Location: " . $_SESSION["request_uri"]);
 					unset($_SESSION["request_uri"]);

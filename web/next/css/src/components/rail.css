@@ -1,0 +1,57 @@
+/* components/rail.css — right server-info rail + log feed */
+@layer components {
+	.rail-section {
+		margin-bottom: var(--space-6);
+	}
+	.rail-title {
+		font-size: var(--step--1);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--text-subtle);
+		margin-bottom: var(--space-3);
+	}
+	.rail-stat {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		padding: var(--space-2) 0;
+		border-bottom: 1px solid var(--border);
+	}
+	.rail-stat-label {
+		color: var(--text-muted);
+	}
+	.rail-stat-value {
+		font-variant-numeric: tabular-nums;
+		font-weight: 600;
+	}
+	.log-feed {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		max-height: 24rem;
+		overflow-y: auto;
+	}
+	.log-item {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: var(--space-2);
+		padding: var(--space-2);
+		border-radius: var(--radius-sm);
+		background: var(--surface-2);
+		font-size: var(--step--1);
+	}
+	.log-time {
+		color: var(--text-subtle);
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+	}
+	.log-msg {
+		color: var(--text-muted);
+	}
+	.log-item[data-level="warning"] .log-msg {
+		color: var(--warning);
+	}
+	.log-item[data-level="error"] .log-msg {
+		color: var(--danger);
+	}
+}

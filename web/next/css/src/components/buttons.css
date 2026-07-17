@@ -1,0 +1,61 @@
+/* components/buttons.css */
+@layer components {
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+		padding: var(--space-2) var(--space-4);
+		border: 1px solid transparent;
+		border-radius: var(--radius-sm);
+		font-size: var(--step--1);
+		font-weight: 600;
+		cursor: pointer;
+		background: var(--surface-3);
+		color: var(--text);
+		transition:
+			background var(--dur) var(--ease),
+			border-color var(--dur) var(--ease),
+			transform var(--dur-fast) var(--ease);
+	}
+	.btn:hover {
+		background: var(--surface-hover);
+	}
+	.btn:active {
+		transform: translateY(1px);
+	}
+	.btn:disabled {
+		opacity: 0.55;
+		cursor: not-allowed;
+	}
+
+	.btn-primary {
+		background: var(--accent);
+		color: var(--text-on-accent);
+		box-shadow: var(--shadow-accent);
+	}
+	.btn-primary:hover {
+		background: var(--accent-strong);
+	}
+
+	.btn-ghost {
+		background: transparent;
+		border-color: var(--border-strong);
+	}
+	.btn-ghost:hover {
+		background: var(--surface-2);
+	}
+
+	.btn-danger {
+		background: var(--danger);
+		color: #fff;
+	}
+
+	.btn-sm {
+		padding: var(--space-1) var(--space-3);
+		font-size: var(--step--1);
+	}
+	.btn-icon {
+		padding: var(--space-2);
+	}
+}

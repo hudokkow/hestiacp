@@ -1,0 +1,21 @@
+/* web/next/css/src/index.css
+ * Layered entry point for the next UI.
+ * Order here defines @layer priority (first = lowest).
+ */
+@layer reset, tokens, base, layout, components, utilities;
+
+@import "reset.css";
+@import "tokens.css";
+@import "base.css";
+@import "layout.css";
+@import "components/buttons.css";
+@import "components/cards.css";
+@import "components/forms.css";
+@import "components/data-list.css";
+@import "components/nav.css";
+@import "components/rail.css";
+@import "components/tiles.css";
+@import "components/graph.css";
+@import "components/dialog.css";
+@import "components/alerts.css";
+@import "utilities.css";

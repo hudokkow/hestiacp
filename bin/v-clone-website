@@ -44,6 +44,15 @@ SOURCE_DOMAIN=$1
 TARGET_DOMAIN=$2
 TARGET_USER=$3
 
+# Optional flags
+#   --EXCLUDE_UPLOADS   skip copying wp-content/uploads (faster clones of large WP sites)
+EXCLUDE_UPLOADS='no'
+for arg in "$@"; do
+	case "$arg" in
+		--EXCLUDE_UPLOADS) EXCLUDE_UPLOADS='yes' ;;
+	esac
+done
+
 # Importing system environment
 source /etc/profile
 
@@ -711,13 +720,17 @@ fi
 rm -rf "$tmpdir"
 
 # Copy source files to target dir
+EXCLUDE_UPLOADS_OPT=''
+if [ "$EXCLUDE_UPLOADS" = "yes" ]; then
+	EXCLUDE_UPLOADS_OPT="--exclude '/wp-content/uploads/*'"
+fi
 echo "=== Copying files from $SOURCE_DIR to $TARGET_DIR"
 if [ "$SOURCE_SUBDIR" != ".." ]; then
-	echo "====== Executing: rsync -a --delete $SOURCE_DIR/ $TARGET_DIR/"
-	rsync -a --delete $SOURCE_DIR/ $TARGET_DIR/
+	echo "====== Executing: rsync -a --delete $EXCLUDE_UPLOADS_OPT $SOURCE_DIR/ $TARGET_DIR/"
+	rsync -a --delete $EXCLUDE_UPLOADS_OPT $SOURCE_DIR/ $TARGET_DIR/
 else
-	echo "====== Executing: rsync -a --delete --exclude 'logs/*' $SOURCE_DIR/ $TARGET_DIR/"
-	rsync -a --delete --exclude 'logs/*' $SOURCE_DIR/ $TARGET_DIR/
+	echo "====== Executing: rsync -a --delete --exclude 'logs/*' $EXCLUDE_UPLOADS_OPT $SOURCE_DIR/ $TARGET_DIR/"
+	rsync -a --delete --exclude 'logs/*' $EXCLUDE_UPLOADS_OPT $SOURCE_DIR/ $TARGET_DIR/
 fi
 
 # Set target ownership

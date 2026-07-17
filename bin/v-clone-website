@@ -501,6 +501,11 @@ else
 		TARGET_DB_NAME_WITHOUT_PREFIX="$TARGET_DB_NAME"
 		TARGET_DB_NAME="$TARGET_USER"_"$TARGET_DB_NAME"
 
+		# MySQL database/user names are limited to 64 characters; truncate if needed
+		if [ "${#TARGET_DB_NAME}" -gt 64 ]; then
+			TARGET_DB_NAME="${TARGET_DB_NAME:0:64}"
+		fi
+
 		# Set database username to $TARGET_DOMAIN with and without $TARGET_USER prefix
 		TARGET_DB_USER="$TARGET_DB_NAME"
 		TARGET_DB_USER_WITHOUT_PREFIX="$TARGET_DB_NAME_WITHOUT_PREFIX"

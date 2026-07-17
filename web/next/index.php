@@ -86,6 +86,46 @@ switch ($page) {
 		$content = __DIR__ . "/templates/pages/backup.php";
 		break;
 
+	case "web-add":
+		$view["page_title"] = _("Add Web Domain");
+		$content = __DIR__ . "/templates/pages/web-add.php";
+		break;
+
+	case "web-edit":
+		$view["page_title"] = _("Edit Web Domain");
+		$domain = preg_replace("/[^a-zA-Z0-9.\-]/", "", $_GET["domain"] ?? "");
+		exec(
+			HESTIA_CMD .
+				"v-list-web-domain " .
+				quoteshellarg($view["user"]) .
+				" " .
+				quoteshellarg($domain) .
+				" json",
+			$out,
+			$rc,
+		);
+		$domainData = $rc === 0 ? json_decode(implode("", $out), true) : [];
+		$domainData = $domainData[$domain] ?? [];
+		$content = __DIR__ . "/templates/pages/web-edit.php";
+		break;
+
+	case "web-delete":
+		if ($_SERVER["REQUEST_METHOD"] === "POST") {
+			verify_csrf($_POST);
+			$del = preg_replace("/[^a-zA-Z0-9.\-]/", "", $_POST["domain"] ?? "");
+			exec(
+				HESTIA_CMD .
+					"v-delete-domain " .
+					quoteshellarg($view["user"]) .
+					" " .
+					quoteshellarg($del),
+				$out,
+				$rc,
+			);
+		}
+		header("Location: /next/?p=web");
+		exit();
+
 	case "home":
 	default:
 		$page = "home";

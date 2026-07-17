@@ -9,7 +9,7 @@
 						<h1><?= _("Mail Domains") ?></h1>
 						<p><?= sprintf(_("%d domain(s)"), count($domains)) ?></p>
 					</div>
-					<a class="btn btn-primary" href="/add/mail/">
+					<a class="btn btn-primary" href="/next/?p=mail-add">
 						<i class="fas fa-plus" aria-hidden="true"></i> <?= _("Add Domain") ?>
 					</a>
 				</header>

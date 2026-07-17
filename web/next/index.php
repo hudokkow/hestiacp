@@ -232,6 +232,84 @@ switch ($page) {
 		header("Location: /next/?p=db");
 		exit();
 
+	case "mail-add":
+		$view["page_title"] = _("Add Mail Domain");
+		$content = __DIR__ . "/templates/pages/mail-add.php";
+		break;
+
+	case "cron-add":
+		$view["page_title"] = _("Add Cron Job");
+		$content = __DIR__ . "/templates/pages/cron-add.php";
+		break;
+
+	case "cron-edit":
+		$view["page_title"] = _("Edit Cron Job");
+		$job = preg_replace("/[^0-9]/", "", $_GET["job"] ?? "");
+		exec(
+			HESTIA_CMD .
+				"v-list-cron-job " .
+				quoteshellarg($view["user"]) .
+				" " .
+				quoteshellarg($job) .
+				" json",
+			$out,
+			$rc,
+		);
+		$jobData = $rc === 0 ? json_decode(implode("", $out), true) : [];
+		$jobData = $jobData[$job] ?? [];
+		$content = __DIR__ . "/templates/pages/cron-edit.php";
+		break;
+
+	case "cron-delete":
+		if ($_SERVER["REQUEST_METHOD"] === "POST") {
+			verify_csrf($_POST);
+			$del = preg_replace("/[^0-9]/", "", $_POST["job"] ?? "");
+			exec(
+				HESTIA_CMD .
+					"v-delete-cron-job " .
+					quoteshellarg($view["user"]) .
+					" " .
+					quoteshellarg($del),
+				$out,
+				$rc,
+			);
+		}
+		header("Location: /next/?p=cron");
+		exit();
+
+	case "backup-create":
+		if ($_SERVER["REQUEST_METHOD"] === "POST") {
+			verify_csrf($_POST);
+			exec(
+				HESTIA_CMD .
+					"v-backup-user " .
+					quoteshellarg($view["user"]) .
+					" " .
+					quoteshellarg("yes"),
+				$out,
+				$rc,
+			);
+		}
+		header("Location: /next/?p=backup");
+		exit();
+
+	case "backup-delete":
+		if ($_SERVER["REQUEST_METHOD"] === "POST") {
+			verify_csrf($_POST);
+			$del = preg_replace("/[^a-zA-Z0-9._\-]/", "", $_POST["backup"] ?? "");
+			exec(
+				HESTIA_CMD .
+					"v-delete-user-backup " .
+					quoteshellarg($view["user"]) .
+					" " .
+					quoteshellarg($del),
+				$out,
+				$rc,
+			);
+		}
+		header("Location: /next/?p=backup");
+		exit();
+
 	case "home":
 	default:
 		$page = "home";

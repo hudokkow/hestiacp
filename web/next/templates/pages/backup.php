@@ -9,9 +9,12 @@
 						<h1><?= _("Backups") ?></h1>
 						<p><?= sprintf(_("%d backup(s)"), count($backups)) ?></p>
 					</div>
-					<a class="btn btn-primary" href="/backup/user/">
-						<i class="fas fa-plus" aria-hidden="true"></i> <?= _("Create Backup") ?>
-					</a>
+					<form method="post" action="/next/?p=backup-create" class="u-inline">
+						<input type="hidden" name="token" value="<?= htmlspecialchars($_SESSION["token"]) ?>">
+						<button class="btn btn-primary" type="submit">
+							<i class="fas fa-plus" aria-hidden="true"></i> <?= _("Create Backup") ?>
+						</button>
+					</form>
 				</header>
 
 				<section class="card">
@@ -50,6 +53,12 @@
 											<a class="btn btn-sm btn-ghost" href="/download/backup/?backup=<?= urlencode($id) ?>"><?= _(
 	"Download",
 ) ?></a>
+											<form method="post" action="/next/?p=backup-delete" class="u-inline" x-data
+												x-on:submit.prevent="if(confirm('<?= _("Delete this backup?") ?>')) $el.submit()">
+												<input type="hidden" name="token" value="<?= htmlspecialchars($_SESSION["token"]) ?>">
+												<input type="hidden" name="backup" value="<?= htmlspecialchars($id) ?>">
+												<button class="btn btn-sm btn-ghost" type="submit"><?= _("Delete") ?></button>
+											</form>
 										</td>
 									</tr>
 								<?php endforeach; ?>

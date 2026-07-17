@@ -3,6 +3,9 @@
 	.u-flex {
 		display: flex;
 	}
+	.u-inline {
+		display: inline;
+	}
 	.u-items-center {
 		align-items: center;
 	}

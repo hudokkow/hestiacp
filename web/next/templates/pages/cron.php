@@ -9,7 +9,7 @@
 						<h1><?= _("Cron Jobs") ?></h1>
 						<p><?= sprintf(_("%d job(s)"), count($jobs)) ?></p>
 					</div>
-					<a class="btn btn-primary" href="/add/cron/">
+					<a class="btn btn-primary" href="/next/?p=cron-add">
 						<i class="fas fa-plus" aria-hidden="true"></i> <?= _("Add Job") ?>
 					</a>
 				</header>
@@ -51,7 +51,9 @@
 											<?php endif; ?>
 										</td>
 										<td class="col-actions">
-											<a class="btn btn-sm btn-ghost" href="/edit/cron/?job=<?= urlencode($job) ?>"><?= _("Edit") ?></a>
+											<a class="btn btn-sm btn-ghost" href="/next/?p=cron-edit&job=<?= urlencode($job) ?>"><?= _(
+	"Edit",
+) ?></a>
 										</td>
 									</tr>
 								<?php endforeach; ?>

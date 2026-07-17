@@ -1,0 +1,188 @@
+#!/bin/bash
+# info: clone a WordPress site within the same user account (gated)
+# options: USER SOURCE_DOMAIN TARGET_DOMAIN
+#
+# example: v-clone-website-gated-wordpress user example.com staging.example.com
+#
+# Creates a staging copy of a WordPress site owned by USER. The target domain
+# is created under the same user if it does not exist yet. Database operations
+# use the site's own credentials (read from wp-config.php) and run as the site
+# owner, so no system DB admin access is required.
+#
+# This script is invoked by v-clone-website-gated and is not meant to be called
+# directly by untrusted callers.
+
+#----------------------------------------------------------#
+#                Variables & Functions                     #
+#----------------------------------------------------------#
+
+# Argument definition
+USER=$1
+SOURCE_DOMAIN=$2
+TARGET_DOMAIN=$3
+
+# Includes
+# shellcheck source=/etc/hestiacp/hestia.conf
+source /etc/hestiacp/hestia.conf
+# shellcheck source=/usr/local/hestia/func/main.sh
+source $HESTIA/func/main.sh
+# shellcheck source=/usr/local/hestia/func/db.sh
+source $HESTIA/func/db.sh
+# load config file
+source_conf "$HESTIA/conf/hestia.conf"
+
+# Resolve the document root of a (public) web domain, accounting for the
+# single-SSL public_shtml layout. Echoes the absolute path.
+get_docroot() {
+	local user="$1"
+	local domain="$2"
+	local dir="/home/$user/web/$domain/public_html"
+	local check
+	check=$($HESTIA/bin/v-list-web-domain "$user" "$domain" 2>/dev/null | grep 'SSL:' | grep -c 'single')
+	if [ "$check" -eq 1 ]; then
+		dir="/home/$user/web/$domain/public_shtml"
+	fi
+	echo "$dir"
+}
+
+# Read a single quoted define() value from wp-config.php.
+# Usage: wp_config_value FILE KEY
+wp_config_value() {
+	local file="$1"
+	local key="$2"
+	local backup="${file}_clone_read"
+	cp "$file" "$backup"
+	sed -i "s|//.*$||g" "$backup"
+	sed -i "s|\"|'|g" "$backup"
+	sed -i "s|('|( '|g" "$backup"
+	sed -i "s|');|' );|g" "$backup"
+	local val
+	val=$(grep "'$key'" "$backup" | awk '{print $3}' | sed -e "s/^'//" -e "s/'$//")
+	rm -f "$backup"
+	echo "$val"
+}
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+
+check_args '3' "$#" 'USER SOURCE_DOMAIN TARGET_DOMAIN'
+is_object_valid 'user' 'USER' "$USER"
+is_domain_format_valid "$SOURCE_DOMAIN"
+is_domain_format_valid "$TARGET_DOMAIN"
+
+SOURCE_DIR=$(get_docroot "$USER" "$SOURCE_DOMAIN")
+if [ ! -f "$SOURCE_DIR/wp-config.php" ]; then
+	echo "Error: $SOURCE_DOMAIN is not a WordPress site"
+	exit 1
+fi
+
+#----------------------------------------------------------#
+#                 Target configuration                     #
+#----------------------------------------------------------#
+
+TARGET_EXISTS=$($HESTIA/bin/v-search-domain-owner "$TARGET_DOMAIN")
+CREATE_TARGET_DOMAIN='no'
+if [ -z "$TARGET_EXISTS" ]; then
+	CREATE_TARGET_DOMAIN='yes'
+fi
+
+# Read source DB credentials from the app config (source of truth for the app)
+DB_NAME=$(wp_config_value "$SOURCE_DIR/wp-config.php" 'DB_NAME')
+DB_USER=$(wp_config_value "$SOURCE_DIR/wp-config.php" 'DB_USER')
+DB_PASS=$(wp_config_value "$SOURCE_DIR/wp-config.php" 'DB_PASSWORD')
+DB_HOST=$(wp_config_value "$SOURCE_DIR/wp-config.php" 'DB_HOST')
+DB_HOST="${DB_HOST:-localhost}"
+
+# Database type / charset from Hestia's own records
+DB_TYPE=$($HESTIA/bin/v-list-database "$USER" "$DB_NAME" 2>/dev/null | grep 'TYPE' | awk '{print $2}')
+DB_TYPE="${DB_TYPE:-mysql}"
+DB_CHARSET=$($HESTIA/bin/v-list-database "$USER" "$DB_NAME" 2>/dev/null | grep 'CHARSET' | awk '{print tolower($2)}')
+DB_CHARSET="${DB_CHARSET:-utf8mb4}"
+
+# Clone into a new db named after the target domain, under the user.
+TARGET_DB_BASENAME=$(echo "$TARGET_DOMAIN" | sed 's#\.#_#g')
+TARGET_DB_NAME_WITHOUT_PREFIX="$TARGET_DB_BASENAME"
+TARGET_DB_NAME="${USER}_${TARGET_DB_BASENAME}"
+TARGET_DB_USER="$TARGET_DB_NAME"
+TARGET_DB_USER_WITHOUT_PREFIX="$TARGET_DB_BASENAME"
+TARGET_DB_PASS="$DB_PASS"
+
+SOURCE_WEB_INFO=$($HESTIA/bin/v-list-web-domain "$USER" "$SOURCE_DOMAIN" 2>/dev/null)
+SITE_IP=$(echo "$SOURCE_WEB_INFO" | grep 'IP:' | awk '{print $2}')
+SITE_TEMPLATE=$(echo "$SOURCE_WEB_INFO" | grep 'TEMPLATE:' | awk '{print $2}')
+SITE_BACKEND=$(echo "$SOURCE_WEB_INFO" | grep 'BACKEND:' | awk '{print $2}')
+SITE_PROXY_TEMPLATE=$(echo "$SOURCE_WEB_INFO" | grep 'PROXY:' | awk '{print $2}')
+SITE_PROXY_EXTENSIONS=$(echo "$SOURCE_WEB_INFO" | awk -F':[[:space:]]+' '/^PROXY EXT:/ {print $2}' | sed "s# #,#g")
+
+if [ "$CREATE_TARGET_DOMAIN" = 'yes' ]; then
+	TARGET_DIR="/home/$USER/web/$TARGET_DOMAIN/public_html"
+else
+	TARGET_DIR=$(get_docroot "$USER" "$TARGET_DOMAIN")
+fi
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+# Create target domain (template/proxy/backend mirror the source)
+if [ "$CREATE_TARGET_DOMAIN" = 'yes' ]; then
+	echo "=== Create domain $TARGET_DOMAIN"
+	$HESTIA/bin/v-add-web-domain "$USER" "$TARGET_DOMAIN" "$SITE_IP" "yes"
+	rm -f "$TARGET_DIR/index.html"
+	if [ -n "$SITE_TEMPLATE" ]; then
+		$HESTIA/bin/v-change-web-domain-tpl "$USER" "$TARGET_DOMAIN" "$SITE_TEMPLATE" "yes"
+	fi
+	if [ -n "$SITE_PROXY_TEMPLATE" ]; then
+		$HESTIA/bin/v-change-web-domain-proxy-tpl "$USER" "$TARGET_DOMAIN" "$SITE_PROXY_TEMPLATE" "$SITE_PROXY_EXTENSIONS" "yes"
+	fi
+	if [ -n "$SITE_BACKEND" ]; then
+		$HESTIA/bin/v-add-web-domain-backend "$USER" "$TARGET_DOMAIN" "default" "yes"
+	fi
+fi
+
+# Create target database
+echo "=== Create database $TARGET_DB_NAME"
+$HESTIA/bin/v-add-database "$USER" "$TARGET_DB_NAME_WITHOUT_PREFIX" "$TARGET_DB_USER_WITHOUT_PREFIX" "$TARGET_DB_PASS" "$DB_TYPE" "$DB_HOST" "$DB_CHARSET"
+
+# Dump source database (using the app's own credentials)
+tmpdir=$(mktemp -d)
+trap 'rm -rf "$tmpdir"' EXIT
+dump_file="$tmpdir/$DB_NAME.sql"
+echo "=== Dumping database $DB_NAME"
+mysqldump --user="$DB_USER" --password="$DB_PASS" --host="$DB_HOST" \
+	--single-transaction --routines -r "$DB_NAME" > "$dump_file" 2>/dev/null
+
+# Import into target database
+echo "=== Importing to database $TARGET_DB_NAME"
+mysql --user="$TARGET_DB_USER" --password="$TARGET_DB_PASS" --host="$DB_HOST" \
+	"$TARGET_DB_NAME" < "$dump_file" 2>/dev/null
+
+# Copy files
+echo "=== Copying files from $SOURCE_DIR to $TARGET_DIR"
+rsync -a --delete "$SOURCE_DIR/" "$TARGET_DIR/"
+
+# Update wp-config.php with the new database credentials
+echo "=== Updating wp-config.php in $TARGET_DIR"
+sed -i "s|'$DB_NAME'|'$TARGET_DB_NAME'|g" "$TARGET_DIR/wp-config.php"
+sed -i "s|'$DB_USER'|'$TARGET_DB_USER'|g" "$TARGET_DIR/wp-config.php"
+sed -i "s|'$DB_PASSWORD'|'$TARGET_DB_PASS'|g" "$TARGET_DIR/wp-config.php"
+
+# Replace domain references in the database (serialized-safe)
+echo "=== Replacing $SOURCE_DOMAIN with $TARGET_DOMAIN in database"
+$HESTIA/bin/v-run-cli-cmd "$USER" wp search-replace \
+	"$SOURCE_DOMAIN" "$TARGET_DOMAIN" --precise --all-tables --skip-columns=guid \
+	--path="$TARGET_DIR" > /dev/null 2>&1
+$HESTIA/bin/v-run-cli-cmd "$USER" wp cache flush --path="$TARGET_DIR" > /dev/null 2>&1
+$HESTIA/bin/v-run-cli-cmd "$USER" wp config shuffle-salts --path="$TARGET_DIR" > /dev/null 2>&1
+
+echo "===== DONE ====="
+echo "You can visit http://$TARGET_DOMAIN/"
+
+#----------------------------------------------------------#
+#                       Hestia                             #
+#----------------------------------------------------------#
+
+log_event "$OK" "$ARGUMENTS"
+
+exit

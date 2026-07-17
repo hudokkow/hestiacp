@@ -1,0 +1,130 @@
+#!/bin/bash
+# info: clone website (gated, same-user only)
+# options: SOURCE_DOMAIN TARGET_DOMAIN
+#
+# example: v-clone-website-gated example.com staging.example.com
+#
+# Gated variant of v-clone-website intended to be exposed to non-admin users
+# through the Hestia API (access key restricted to this command).
+#
+# Security model:
+#   - The caller may only clone sites they own. Both SOURCE_DOMAIN and
+#     TARGET_DOMAIN must belong to the same Hestia user; creating new users
+#     or cloning into another account is refused.
+#   - Database operations use the site owner's own credentials (read from the
+#     app config), not the system DB admin.
+#   - Supported types: wordpress, static. Other types fall back to static.
+
+#----------------------------------------------------------#
+#                Variables & Functions                     #
+#----------------------------------------------------------#
+
+# Argument definition
+SOURCE_DOMAIN=$1
+TARGET_DOMAIN=$2
+
+# Includes
+# shellcheck source=/etc/hestiacp/hestia.conf
+source /etc/hestiacp/hestia.conf
+# shellcheck source=/usr/local/hestia/func/main.sh
+source $HESTIA/func/main.sh
+# shellcheck source=/usr/local/hestia/func/db.sh
+source $HESTIA/func/db.sh
+# load config file
+source_conf "$HESTIA/conf/hestia.conf"
+
+# Detect the CMS type of a document root by sniffing for known config files.
+# Echoes one of: wordpress, joomla, opencart, static
+detect_site_type() {
+	local dir="$1"
+	if [ -f "$dir/wp-config.php" ]; then
+		echo "wordpress"
+		return
+	fi
+	if [ -f "$dir/configuration.php" ]; then
+		echo "joomla"
+		return
+	fi
+	if [ -f "$dir/system/engine/model.php" ] && grep -q 'OpenCart' "$dir/system/engine/model.php"; then
+		echo "opencart"
+		return
+	fi
+	echo "static"
+}
+
+# Resolve the document root of a (public) web domain, accounting for the
+# single-SSL public_shtml layout. Echoes the absolute path.
+get_docroot() {
+	local user="$1"
+	local domain="$2"
+	local dir="/home/$user/web/$domain/public_html"
+	local check
+	check=$($HESTIA/bin/v-list-web-domain "$user" "$domain" 2>/dev/null | grep 'SSL:' | grep -c 'single')
+	if [ "$check" -eq 1 ]; then
+		dir="/home/$user/web/$domain/public_shtml"
+	fi
+	echo "$dir"
+}
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+
+check_hestia_demo_mode
+
+check_args '2' "$#" 'SOURCE_DOMAIN TARGET_DOMAIN'
+is_domain_format_valid "$SOURCE_DOMAIN"
+is_domain_format_valid "$TARGET_DOMAIN"
+
+if [ "$SOURCE_DOMAIN" = "$TARGET_DOMAIN" ]; then
+	echo "Error: source and target domains must differ"
+	exit 1
+fi
+
+# Resolve the owner of the source domain. The target must belong to the same
+# user, otherwise a caller could clone into (or read) another account.
+SOURCE_USER=$($HESTIA/bin/v-search-domain-owner "$SOURCE_DOMAIN")
+if [ -z "$SOURCE_USER" ]; then
+	echo "Error: domain $SOURCE_DOMAIN does not exist"
+	exit 2
+fi
+
+TARGET_USER=$($HESTIA/bin/v-search-domain-owner "$TARGET_DOMAIN")
+if [ -n "$TARGET_USER" ] && [ "$TARGET_USER" != "$SOURCE_USER" ]; then
+	echo "Error: $TARGET_DOMAIN belongs to a different user ($TARGET_USER); cross-user clone is not allowed"
+	exit 3
+fi
+
+# If the target domain does not exist yet it will be created below, but always
+# under the source (owner) user. Never honour an externally supplied user.
+TARGET_USER="$SOURCE_USER"
+
+#----------------------------------------------------------#
+#                    Source detection                      #
+#----------------------------------------------------------#
+
+SOURCE_DIR=$(get_docroot "$SOURCE_USER" "$SOURCE_DOMAIN")
+SITE_TYPE=$(detect_site_type "$SOURCE_DIR")
+
+case "$SITE_TYPE" in
+	wordpress)
+		$HESTIA/bin/v-clone-website-gated-wordpress \
+			"$SOURCE_USER" "$SOURCE_DOMAIN" "$TARGET_DOMAIN"
+		;;
+	static)
+		$HESTIA/bin/v-clone-website-gated-static \
+			"$SOURCE_USER" "$SOURCE_DOMAIN" "$TARGET_DOMAIN"
+		;;
+	*)
+		echo "Error: unsupported site type '$SITE_TYPE' for gated clone"
+		exit 4
+		;;
+esac
+
+#----------------------------------------------------------#
+#                       Hestia                             #
+#----------------------------------------------------------#
+
+log_event "$OK" "$ARGUMENTS"
+
+exit

@@ -1,0 +1,101 @@
+#!/bin/bash
+# info: clone a static site within the same user account (gated)
+# options: USER SOURCE_DOMAIN TARGET_DOMAIN
+#
+# example: v-clone-website-gated-static user example.com staging.example.com
+#
+# Creates a staging copy of a static (no database) site owned by USER. The
+# target domain is created under the same user if it does not exist yet.
+#
+# This script is invoked by v-clone-website-gated and is not meant to be called
+# directly by untrusted callers.
+
+#----------------------------------------------------------#
+#                Variables & Functions                     #
+#----------------------------------------------------------#
+
+# Argument definition
+USER=$1
+SOURCE_DOMAIN=$2
+TARGET_DOMAIN=$3
+
+# Includes
+# shellcheck source=/etc/hestiacp/hestia.conf
+source /etc/hestiacp/hestia.conf
+# shellcheck source=/usr/local/hestia/func/main.sh
+source $HESTIA/func/main.sh
+# shellcheck source=/usr/local/hestia/func/db.sh
+source $HESTIA/func/db.sh
+# load config file
+source_conf "$HESTIA/conf/hestia.conf"
+
+# Resolve the document root of a (public) web domain, accounting for the
+# single-SSL public_shtml layout. Echoes the absolute path.
+get_docroot() {
+	local user="$1"
+	local domain="$2"
+	local dir="/home/$user/web/$domain/public_html"
+	local check
+	check=$($HESTIA/bin/v-list-web-domain "$user" "$domain" 2>/dev/null | grep 'SSL:' | grep -c 'single')
+	if [ "$check" -eq 1 ]; then
+		dir="/home/$user/web/$domain/public_shtml"
+	fi
+	echo "$dir"
+}
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
+
+check_args '3' "$#" 'USER SOURCE_DOMAIN TARGET_DOMAIN'
+is_object_valid 'user' 'USER' "$USER"
+is_domain_format_valid "$SOURCE_DOMAIN"
+is_domain_format_valid "$TARGET_DOMAIN"
+
+TARGET_EXISTS=$($HESTIA/bin/v-search-domain-owner "$TARGET_DOMAIN")
+CREATE_TARGET_DOMAIN='no'
+if [ -z "$TARGET_EXISTS" ]; then
+	CREATE_TARGET_DOMAIN='yes'
+fi
+
+#----------------------------------------------------------#
+#                 Source / target dirs                     #
+#----------------------------------------------------------#
+
+SITE_IP=$($HESTIA/bin/v-list-web-domain "$USER" "$SOURCE_DOMAIN" 2>/dev/null | grep 'IP:' | awk '{print $2}')
+SOURCE_DIR=$(get_docroot "$USER" "$SOURCE_DOMAIN")
+
+if [ "$CREATE_TARGET_DOMAIN" = 'yes' ]; then
+	TARGET_DIR="/home/$USER/web/$TARGET_DOMAIN/public_html"
+else
+	TARGET_DIR=$(get_docroot "$USER" "$TARGET_DOMAIN")
+fi
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+if [ "$CREATE_TARGET_DOMAIN" = 'yes' ]; then
+	echo "=== Create domain $TARGET_DOMAIN"
+	$HESTIA/bin/v-add-web-domain "$USER" "$TARGET_DOMAIN" "$SITE_IP" "yes"
+	rm -f "$TARGET_DIR/index.html"
+fi
+
+echo "=== Copying files from $SOURCE_DIR to $TARGET_DIR"
+rsync -a --delete "$SOURCE_DIR/" "$TARGET_DIR/"
+
+# Replace absolute domain references inside the copied files
+echo "=== Replacing $SOURCE_DOMAIN with $TARGET_DOMAIN in $TARGET_DIR"
+REGEXP_SOURCE_DOMAIN="${SOURCE_DOMAIN//\./\\.}"
+grep -rlZ "$REGEXP_SOURCE_DOMAIN" "$TARGET_DIR" | xargs -0 -r sed -i "s#$REGEXP_SOURCE_DOMAIN#$TARGET_DOMAIN#g"
+
+echo "===== DONE ====="
+echo "You can visit http://$TARGET_DOMAIN/"
+
+#----------------------------------------------------------#
+#                       Hestia                             #
+#----------------------------------------------------------#
+
+log_event "$OK" "$ARGUMENTS"
+
+exit

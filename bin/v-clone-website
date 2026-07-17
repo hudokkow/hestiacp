@@ -8,6 +8,27 @@
 # Migration tool that will copy the whole site from one (sub)domain to another (sub)domain (on the same server), changing URLs in the database, taking into account serialized arrays.
 # Useful for making a website staging copy in one command-line.
 # It automatically detects WordPress, reading the DB user, DB name, DB pass, and cloning to a new database, with the corresponding wp-config.php file update during the process.
+#
+# Usage:
+#   v-clone-website SOURCE_DOMAIN TARGET_DOMAIN [TARGET_USER]
+#
+# Examples:
+#   # Clone example.com into a new subdomain staging.example.com in the same user
+#   v-clone-website example.com staging.example.com
+#
+#   # Clone example.com into a brand new user "staging" with domain staging.com
+#   v-clone-website example.com staging.com staging
+#
+#   # Clone a WordPress site to a subdomain for staging
+#   v-clone-website wordpress.example.com wp.staging.example.com
+#
+#   # Clone to another user's existing domain (target domain must already exist)
+#   v-clone-website example.com clientdomain.com clientuser
+#
+# Supported CMS types detected automatically: wordpress, joomla, opencart, static.
+# The target database is created with a name derived from TARGET_DOMAIN
+# (prefixed by TARGET_USER). The source database is dumped and imported into it.
+# URLs in the database are rewritten taking serialized data into account.
 
 #----------------------------------------------------------#
 #                Variables & Functions                     #

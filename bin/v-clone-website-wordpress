@@ -1,0 +1,60 @@
+#!/bin/bash
+# info: clone a WordPress site (action script, invoked by v-clone-website)
+# options: SOURCE_USER SOURCE_DOMAIN TARGET_USER TARGET_DOMAIN
+#
+# Performs the WordPress-specific part of a clone: wp-config.php update and
+# serialized-safe URL replacement in the database. File copy, database
+# dump/import and ownership are handled by the v-clone-website entrypoint.
+# This script is not meant to be called directly by untrusted callers.
+
+#----------------------------------------------------------#
+#                Variables & Functions                     #
+#----------------------------------------------------------#
+
+SOURCE_USER=$1
+SOURCE_DOMAIN=$2
+TARGET_USER=$3
+TARGET_DOMAIN=$4
+
+# Includes
+# shellcheck source=/etc/hestiacp/hestia.conf
+source /etc/hestiacp/hestia.conf
+# shellcheck source=/usr/local/hestia/func/main.sh
+source $HESTIA/func/main.sh
+# load config file
+source_conf "$HESTIA/conf/hestia.conf"
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+TARGET_CONFIG_FILE_FULL_PATH="$TARGET_DIR/wp-config.php"
+
+# Update wp-config.php with the new database credentials
+echo "=== Updating wp-config.php in $TARGET_DIR"
+sed -i "s|'$SOURCE_DB_NAME'|'$TARGET_DB_NAME'|g" "$TARGET_CONFIG_FILE_FULL_PATH"
+sed -i "s|'$SOURCE_DB_USER'|'$TARGET_DB_USER'|g" "$TARGET_CONFIG_FILE_FULL_PATH"
+sed -i "s|'$SOURCE_DB_PASS'|'$TARGET_DB_PASS'|g" "$TARGET_CONFIG_FILE_FULL_PATH"
+
+# Replace domain references in the database (serialized-safe)
+cd "$TARGET_DIR"
+echo "=== Replacing $SOURCE_DOMAIN with $TARGET_DOMAIN in database $TARGET_DB_NAME"
+sudo -H -u"$TARGET_USER" "$WPCLI_BIN" search-replace "$SOURCE_DOMAIN" "$TARGET_DOMAIN" --precise --all-tables --skip-columns=guid --skip-plugins --skip-themes
+if [ "$SOURCE_USER" != "$TARGET_USER" ]; then
+	echo "=== Replacing /home/$SOURCE_USER/ to /home/$TARGET_USER/ in database $TARGET_DB_NAME"
+	sudo -H -u"$TARGET_USER" "$WPCLI_BIN" search-replace "/home/$SOURCE_USER/" "/home/$TARGET_USER/" --precise --all-tables --skip-columns=guid --skip-plugins --skip-themes
+fi
+sudo -H -u"$TARGET_USER" "$WPCLI_BIN" cache flush --skip-plugins --skip-themes
+sudo -H -u"$TARGET_USER" "$WPCLI_BIN" config shuffle-salts WP_CACHE_KEY_SALT --force --skip-plugins --skip-themes
+sudo -H -u"$TARGET_USER" "$WPCLI_BIN" config shuffle-salts --skip-plugins --skip-themes
+
+echo "===== DONE ====="
+echo "You can visit http://$TARGET_DOMAIN/"
+
+#----------------------------------------------------------#
+#                       Hestia                             #
+#----------------------------------------------------------#
+
+log_event "$OK" "$ARGUMENTS"
+
+exit

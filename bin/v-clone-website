@@ -578,6 +578,13 @@ fi
 #                       Action                             #
 #----------------------------------------------------------#
 
+# Export values consumed by the per-type action scripts
+export SOURCE_USER SOURCE_DOMAIN TARGET_USER TARGET_DOMAIN
+export SOURCE_DIR TARGET_DIR SOURCE_TYPE
+export SOURCE_DB_NAME SOURCE_DB_USER SOURCE_DB_PASS SOURCE_DB_HOST SOURCE_DB_TYPE
+export TARGET_DB_NAME TARGET_DB_USER TARGET_DB_PASS TARGET_DB_HOST TARGET_DB_TYPE
+export WPCLI_BIN SRDB_BIN
+
 # Create target user
 if [ "$CREATE_TARGET_USER" = "yes" ]; then
 	pass=$(generate_password)
@@ -702,48 +709,13 @@ if [ "$SOURCE_USER" != "$TARGET_USER" ]; then
 	grep -rlZ "/home/$SOURCE_USER/" "$TARGET_DIR" | xargs -0 -r sed -i "s#/home/$SOURCE_USER/#/home/$TARGET_USER/#g"
 fi
 
-# WordPress exclusive
-if [ "$SOURCE_TYPE" = "wordpress" ]; then
-	cd $TARGET_DIR
-	echo "=== Replacing $SOURCE_DOMAIN with $TARGET_DOMAIN in database $TARGET_DB_NAME"
-	sudo -H -u$TARGET_USER $WPCLI_BIN search-replace "$SOURCE_DOMAIN" "$TARGET_DOMAIN" --precise --all-tables --skip-columns=guid
-	if [ "$SOURCE_USER" != "$TARGET_USER" ]; then
-		echo "=== Replacing /home/$SOURCE_USER/ to /home/$TARGET_USER/ in database $TARGET_DB_NAME"
-		sudo -H -u$TARGET_USER $WPCLI_BIN search-replace "/home/$SOURCE_USER/" "/home/$TARGET_USER/" --precise --all-tables --skip-columns=guid
-	fi
-	sudo -H -u$TARGET_USER $WPCLI_BIN cache flush
-	sudo -H -u$TARGET_USER $WPCLI_BIN config shuffle-salts WP_CACHE_KEY_SALT --force
-	sudo -H -u$TARGET_USER $WPCLI_BIN config shuffle-salts
-fi
-
-# TODO: hudok cleanup and test Opencart
-# Apparently Opencart exclusive
-if [ $SOURCE_TYPE = "opencart" ]; then
-	if [ -n "$SEARCH_FOR_CONFIGS_DB_NAME" ]; then
-		echo "=== Replacing ${SOURCE_DB_NAME} with ${TARGET_DB_NAME} by searching in folder $TARGET_DIR [SEARCH_FOR_CONFIGS_DB_NAME]"
-		grep -rlZ "${SOURCE_DB_NAME}" "$TARGET_DIR" | xargs -0 -r sed -i "s#${SOURCE_DB_NAME}#${TARGET_DB_NAME}#g"
-	fi
-
-	if [ -n "$SEARCH_FOR_CONFIGS_DB_USER" ]; then
-		DO_SEARCH_FOR_CONFIGS_DB_USER=1;
-		if [ -n "$SEARCH_FOR_CONFIGS_DB_NAME" ] && [ "$SEARCH_FOR_CONFIGS_DB_NAME" = "$SEARCH_FOR_CONFIGS_DB_USER" ]; then
-			DO_SEARCH_FOR_CONFIGS_DB_USER=0
-		fi
-		if [ $DO_SEARCH_FOR_CONFIGS_DB_USER -eq 1 ]; then
-			echo "=== Replacing ${SOURCE_DB_USER} with ${TARGET_DB_USER} by searching in folder $TARGET_DIR [SEARCH_FOR_CONFIGS_DB_USER]"
-			grep -rlZ "${SOURCE_DB_USER}" "$TARGET_DIR" | xargs -0 -r sed -i "s#${SOURCE_DB_USER}#${TARGET_DB_USER}#g"
-		fi
-	fi
-fi
-
-# Joomla, OpenCart, etc
-if [ $SOURCE_TYPE != "wordpress" ] && [ $SOURCE_TYPE != "static" ]; then
-	echo "=== Replacing $SOURCE_DOMAIN with $TARGET_DOMAIN in database $TARGET_DB_NAME"
-	php $SRDB_BIN -h localhost -n "$TARGET_DB_NAME" -u "$TARGET_DB_USER" -p "$TARGET_DB_PASS" -s "$SOURCE_DOMAIN" -r "$TARGET_DOMAIN"
-	if [ "$SOURCE_USER" != "$TARGET_USER" ]; then
-		echo "=== Replacing /home/$SOURCE_USER/ to /home/$TARGET_USER/ in database $TARGET_DB_NAME"
-		php $SRDB_BIN -h localhost -n "$TARGET_DB_NAME" -u "$TARGET_DB_USER" -p "$TARGET_DB_PASS" -s "/home/$SOURCE_USER/" -r "/home/$TARGET_USER/"
-	fi
+# Dispatch to the CMS-specific action script (handles config update + DB search-replace)
+ACTION_SCRIPT="$HESTIA/bin/v-clone-website-$SOURCE_TYPE"
+if [ -x "$ACTION_SCRIPT" ]; then
+	echo "=== Running $ACTION_SCRIPT"
+	"$ACTION_SCRIPT" "$SOURCE_USER" "$SOURCE_DOMAIN" "$TARGET_USER" "$TARGET_DOMAIN"
+else
+	echo "=== No action script for type $SOURCE_TYPE; file copy done"
 fi
 
 echo "===== DONE ===="

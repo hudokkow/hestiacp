@@ -1,0 +1,54 @@
+#!/bin/bash
+# info: clone a Joomla site (action script, invoked by v-clone-website)
+# options: SOURCE_USER SOURCE_DOMAIN TARGET_USER TARGET_DOMAIN
+#
+# Performs the Joomla-specific part of a clone: configuration.php update and
+# database URL replacement. File copy, database dump/import and ownership are
+# handled by the v-clone-website entrypoint. Not meant to be called directly by
+# untrusted callers.
+
+#----------------------------------------------------------#
+#                Variables & Functions                     #
+#----------------------------------------------------------#
+
+SOURCE_USER=$1
+SOURCE_DOMAIN=$2
+TARGET_USER=$3
+TARGET_DOMAIN=$4
+
+# Includes
+# shellcheck source=/etc/hestiacp/hestia.conf
+source /etc/hestiacp/hestia.conf
+# shellcheck source=/usr/local/hestia/func/main.sh
+source $HESTIA/func/main.sh
+# load config file
+source_conf "$HESTIA/conf/hestia.conf"
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+TARGET_CONFIG_FILE_FULL_PATH="$TARGET_DIR/configuration.php"
+
+echo "=== Updating configuration.php in $TARGET_DIR"
+sed -i "s|public \$db = '$SOURCE_DB_NAME'|public \$db = '$TARGET_DB_NAME'|g" "$TARGET_CONFIG_FILE_FULL_PATH"
+sed -i "s|public \$user = '$SOURCE_DB_USER'|public \$user = '$TARGET_DB_USER'|g" "$TARGET_CONFIG_FILE_FULL_PATH"
+sed -i "s|public \$password = '$SOURCE_DB_PASS'|public \$password = '$TARGET_DB_PASS'|g" "$TARGET_CONFIG_FILE_FULL_PATH"
+
+echo "=== Replacing $SOURCE_DOMAIN with $TARGET_DOMAIN in database $TARGET_DB_NAME"
+php "$SRDB_BIN" -h localhost -n "$TARGET_DB_NAME" -u "$TARGET_DB_USER" -p "$TARGET_DB_PASS" -s "$SOURCE_DOMAIN" -r "$TARGET_DOMAIN"
+if [ "$SOURCE_USER" != "$TARGET_USER" ]; then
+	echo "=== Replacing /home/$SOURCE_USER/ to /home/$TARGET_USER/ in database $TARGET_DB_NAME"
+	php "$SRDB_BIN" -h localhost -n "$TARGET_DB_NAME" -u "$TARGET_DB_USER" -p "$TARGET_DB_PASS" -s "/home/$SOURCE_USER/" -r "/home/$TARGET_USER/"
+fi
+
+echo "===== DONE ====="
+echo "You can visit http://$TARGET_DOMAIN/"
+
+#----------------------------------------------------------#
+#                       Hestia                             #
+#----------------------------------------------------------#
+
+log_event "$OK" "$ARGUMENTS"
+
+exit

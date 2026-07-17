@@ -1,0 +1,39 @@
+#!/bin/bash
+# info: clone a static / unknown-type site (action script, invoked by v-clone-website)
+# options: SOURCE_USER SOURCE_DOMAIN TARGET_USER TARGET_DOMAIN
+#
+# Static sites have no database and no config file to rewrite. File copy and
+# ownership are handled by the v-clone-website entrypoint, so this script only
+# prints a completion message. Kept as a dispatcher target for consistency.
+
+#----------------------------------------------------------#
+#                Variables & Functions                     #
+#----------------------------------------------------------#
+
+SOURCE_USER=$1
+SOURCE_DOMAIN=$2
+TARGET_USER=$3
+TARGET_DOMAIN=$4
+
+# Includes
+# shellcheck source=/etc/hestiacp/hestia.conf
+source /etc/hestiacp/hestia.conf
+# shellcheck source=/usr/local/hestia/func/main.sh
+source $HESTIA/func/main.sh
+# load config file
+source_conf "$HESTIA/conf/hestia.conf"
+
+#----------------------------------------------------------#
+#                       Action                             #
+#----------------------------------------------------------#
+
+echo "===== DONE ====="
+echo "You can visit http://$TARGET_DOMAIN/"
+
+#----------------------------------------------------------#
+#                       Hestia                             #
+#----------------------------------------------------------#
+
+log_event "$OK" "$ARGUMENTS"
+
+exit
